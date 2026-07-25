@@ -1,4 +1,4 @@
-package com.example.medicalclinic;
+package com.neqrofukk.medicalclinic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

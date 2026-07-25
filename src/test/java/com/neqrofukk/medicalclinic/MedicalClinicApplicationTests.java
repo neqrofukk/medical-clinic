@@ -1,10 +1,10 @@
-package com.example.clinic;
+package com.neqrofukk.medicalclinic;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ClinicApplicationTests {
+class MedicalClinicApplicationTests {
 
     @Test
     void contextLoads() {
