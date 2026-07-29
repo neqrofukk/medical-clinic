@@ -1,14 +1,17 @@
 package com.neqrofukk.medicalclinic.repository;
 
 import com.neqrofukk.medicalclinic.entity.Patient;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface PatientRepository {
-    Patient create(Patient patient);
-    void delete(String id);
+@Repository
+public interface PatientRepository extends JpaRepository<Patient, Long> {
+
     Optional<Patient> findByEmail(String email);
-    List<Patient> findAll();
-    Patient update(String id, Patient patient);
+
+//    @Transactional
+    void deleteByEmail(String email);
 }

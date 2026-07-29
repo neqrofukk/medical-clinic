@@ -6,27 +6,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "patients")
-public class Patient {
+@Table(name = "users")
+public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
     private String password;
-    private String idCardNo;
-    private String firstName;
-    private String lastName;
-    private LocalDate birthDay;
-    private String phoneNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @OneToOne(mappedBy = "user")
+    private Patient patient;
 }

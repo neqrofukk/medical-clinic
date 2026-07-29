@@ -7,6 +7,8 @@ import java.time.LocalDate;
 public record PatientDto(
         @Schema(description = "Email address", example = "JohnDoe@example.com")
         String email,
+        @Schema(description = "ID Card Number", example = "2000123456786545")
+        String idCardNo,
         @Schema(description = "First name", example = "John")
         String firstName,
         @Schema(description = "Surname", example = "Doe")

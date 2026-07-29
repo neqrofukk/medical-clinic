@@ -44,40 +44,51 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+<!--    Mapstruct    -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.6.3</version>
         </dependency>
+
+<!--    Mapstruct Processor    -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
             <version>1.6.3</version>
         </dependency>
+
+<!--    Lombok    -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok-mapstruct-binding -->
+
+<!--    Lombok Mapstruct   -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>0.2.0</version>
             <scope>compile</scope>
         </dependency>
-        <!-- h2 dataBase + jpa-->
+
+<!--    JPA (Java Persistence Api)   -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>3.3.2</version>
         </dependency>
+
+<!--    H2 Database    -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.2.224</version>
             <scope>runtime</scope>
         </dependency>
+
     </dependencies>
 
     <build>
