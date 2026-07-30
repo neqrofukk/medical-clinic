@@ -1,7 +1,6 @@
 package com.neqrofukk.medicalclinic.controller;
 
 import com.neqrofukk.medicalclinic.dto.PasswordChangeCommand;
-import com.neqrofukk.medicalclinic.dto.PatientDto;
 import com.neqrofukk.medicalclinic.dto.UserDto;
 import com.neqrofukk.medicalclinic.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +37,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid id")
     })
     @GetMapping("/{id}")
-    public UserDto ById(@PathVariable Long id) {
+    public UserDto findById(@PathVariable Long id) {
         return userService.findById(id);
     }
 

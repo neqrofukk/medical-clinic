@@ -6,24 +6,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "users")
-public class User {
+@Table(name = "clinics")
+public class Clinic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
 
-    @OneToOne(mappedBy = "user")
-    private Patient patient;
+    @Column(unique=true)
+    private String name;
+    private String city;
+    private String zipCode;
+    private String street;
+    private Integer streetNumber;
 
-    @OneToOne(mappedBy = "user")
-    private Doctor doctor;
+    @OneToMany(mappedBy="clinic")
+    private List<Doctor> doctors;
 }

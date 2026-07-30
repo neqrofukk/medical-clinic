@@ -89,6 +89,15 @@
             <scope>runtime</scope>
         </dependency>
 
+<!--    Hibernate ORM    -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>7.4.5.Final</version>
+            <type>pom</type>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

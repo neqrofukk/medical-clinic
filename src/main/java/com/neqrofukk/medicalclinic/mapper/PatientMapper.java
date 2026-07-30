@@ -9,6 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PatientMapper {
     @Mapping(target = "id", ignore = true)
-    Patient toEntity(PatientCreateCommand patientCommand);
+    Patient toEntity(PatientCreateCommand patient);
     PatientDto toPatientDto(Patient patient);
 }

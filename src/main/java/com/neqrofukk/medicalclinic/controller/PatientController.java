@@ -1,8 +1,8 @@
 package com.neqrofukk.medicalclinic.controller;
 
-import com.neqrofukk.medicalclinic.dto.PasswordChangeCommand;
 import com.neqrofukk.medicalclinic.dto.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.PatientDto;
+import com.neqrofukk.medicalclinic.dto.PatientUpdateCommand;
 import com.neqrofukk.medicalclinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,37 +15,36 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "patients", description = "Operations for managing patient records")
+@Tag(name = "patients", description = "Operations for managing patients")
 @RequestMapping("/patients")
 @RestController
 @RequiredArgsConstructor
 public class PatientController {
-    //    private final OldPatientService patientService;
     @Autowired
     private final PatientService patientService;
 
-    @Operation(summary = "Get all available Patients")
+    @Operation(summary = "Get all available patients")
     @ApiResponse(responseCode = "200", description = "Returned all patients")
     @GetMapping
     public List<PatientDto> findAll() {
         return patientService.findAll();
     }
 
-    @Operation(summary = "Get patient by email")
+    @Operation(summary = "Get patient by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Patient found"),
             @ApiResponse(responseCode = "404", description = "Patient not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid email supplied")
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied")
     })
-    @GetMapping("/{email}")
-    public PatientDto ById(@PathVariable String email) {
-        return patientService.findByEmail(email);
+    @GetMapping("/{id}")
+    public PatientDto findById(@PathVariable Long id) {
+        return patientService.findById(id);
     }
 
     @Operation(summary = "Create patient")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Patient Created Successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid Patient details")
+            @ApiResponse(responseCode = "201", description = "Patient created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid patient details")
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -53,39 +52,27 @@ public class PatientController {
         return patientService.addPatient(createDto);
     }
 
-    @Operation(summary = "Updates patient details")
+    @Operation(summary = "Update patient details")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Patient Updated Successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid email supplied"),
+            @ApiResponse(responseCode = "200", description = "Patient updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Patient not found")
     })
-    @PutMapping("/{email}")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PatientDto update(@PathVariable String email, @RequestBody PatientCreateCommand createDto) {
-        return patientService.updatePatient(email, createDto);
-    }
-
-    @Operation(summary = "Change patient password")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Password Updated Successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid password supplied"),
-            @ApiResponse(responseCode = "404", description = "Patient not found")
-    })
-    @PatchMapping("/{email}/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@PathVariable String email, @RequestBody PasswordChangeCommand newPassword) {
-        patientService.updatePassword(email, newPassword.newPassword());
+    public PatientDto update(@PathVariable Long id, @RequestBody PatientUpdateCommand createDto) {
+        return patientService.updatePatient(id, createDto);
     }
 
     @Operation(summary = "Delete patient")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Patient Deleted Successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid email supplied"),
+            @ApiResponse(responseCode = "204", description = "Patient deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Patient not found")
     })
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String email) {
-        patientService.deleteByEmail(email);
+    public void delete(@PathVariable Long id) {
+        patientService.deletePatient(id);
     }
 }
