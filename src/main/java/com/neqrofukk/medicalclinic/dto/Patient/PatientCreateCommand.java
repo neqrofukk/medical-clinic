@@ -1,4 +1,4 @@
-package com.neqrofukk.medicalclinic.dto;
+package com.neqrofukk.medicalclinic.dto.Patient;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

@@ -1,13 +1,15 @@
 package com.neqrofukk.medicalclinic.service;
 
-import com.neqrofukk.medicalclinic.dto.DoctorCreateCommand;
-import com.neqrofukk.medicalclinic.dto.DoctorDto;
-import com.neqrofukk.medicalclinic.dto.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDetailsDto;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
 import com.neqrofukk.medicalclinic.entity.User;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotFoundException;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
+import com.neqrofukk.medicalclinic.mapper.DoctorDetailsMapper;
 import com.neqrofukk.medicalclinic.mapper.DoctorMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
@@ -22,16 +24,18 @@ import java.util.List;
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
-    private final ClinicRepository clinicRepository;
     private final DoctorMapper doctorMapper;
+    private final DoctorDetailsMapper doctorDetailsMapper;
+    private final ClinicRepository clinicRepository;
+    private final ClinicService clinicService;
 
     public List<DoctorDto> findAll() {
         return doctorRepository.findAll().stream().map(doctorMapper::toDoctorDto).toList();
     }
 
-    public DoctorDto findById(Long id) {
+    public DoctorDetailsDto findById(Long id) {
         Doctor doctorDb = getDoctorDb(id);
-        return doctorMapper.toDoctorDto(doctorDb);
+        return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
     public DoctorDto addDoctor(DoctorCreateCommand doctor) {
@@ -44,9 +48,6 @@ public class DoctorService {
         Doctor doctorEntity = new Doctor();
         doctorEntity.setSpecialty(doctor.specialty());
         doctorEntity.setUser(user);
-
-        Clinic clinicDb = getClinicDb(doctor.clinicId());
-        doctorEntity.setClinic(clinicDb);
 
         Doctor doctorDb = doctorRepository.save(doctorEntity);
         return doctorMapper.toDoctorDto(doctorDb);
@@ -61,11 +62,6 @@ public class DoctorService {
         Utils.setIfPresent(doctor.firstName(), userDb::setFirstName);
         Utils.setIfPresent(doctor.lastName(), userDb::setLastName);
 
-        if (doctor.clinicId() != null) {
-            Clinic clinicDb = getClinicDb(doctor.clinicId());
-            doctorDb.setClinic(clinicDb);
-        }
-
         doctorRepository.save(doctorDb);
 
         return doctorMapper.toDoctorDto(doctorDb);
@@ -75,19 +71,18 @@ public class DoctorService {
         doctorRepository.deleteById(id);
     }
 
-    public DoctorDto addDoctorToClinic(Long id, Long clinicId) {
+    public DoctorDetailsDto addClinicToDoctor(Long doctorId, Long clinicId) {
+        Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
-        Doctor doctorDb = getDoctorDb(id);
-
-        doctorDb.setClinic(clinicDb);
-
-        return doctorMapper.toDoctorDto(doctorRepository.save(doctorDb));
+        clinicService.linkDoctorAndClinic(clinicDb, doctorDb);
+        return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
-    public DoctorDto removeDoctorFromClinic(Long id) {
-        Doctor doctorDb = getDoctorDb(id);
-        doctorDb.setClinic(null);
-        return doctorMapper.toDoctorDto(doctorRepository.save(doctorDb));
+    public DoctorDetailsDto removeClinicFromDoctor(Long doctorId, Long clinicId) {
+        Doctor doctorDb = getDoctorDb(doctorId);
+        Clinic clinicDb = getClinicDb(clinicId);
+        clinicService.unlinkDoctorAndClinic(clinicDb, doctorDb);
+        return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
     private Doctor getDoctorDb(Long id) {

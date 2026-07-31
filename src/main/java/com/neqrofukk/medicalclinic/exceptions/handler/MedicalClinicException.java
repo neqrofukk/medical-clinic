@@ -1,4 +1,4 @@
-package com.neqrofukk.medicalclinic.exceptions;
+package com.neqrofukk.medicalclinic.exceptions.handler;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

@@ -1,15 +1,14 @@
 package com.neqrofukk.medicalclinic.controller;
 
-import com.neqrofukk.medicalclinic.dto.PatientCreateCommand;
-import com.neqrofukk.medicalclinic.dto.PatientDto;
-import com.neqrofukk.medicalclinic.dto.PatientUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
 import com.neqrofukk.medicalclinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +19,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class PatientController {
-    @Autowired
     private final PatientService patientService;
 
     @Operation(summary = "Get all available patients")

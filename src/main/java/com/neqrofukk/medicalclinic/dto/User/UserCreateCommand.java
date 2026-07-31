@@ -1,8 +1,9 @@
-package com.neqrofukk.medicalclinic.dto;
+package com.neqrofukk.medicalclinic.dto.User;
 
-public record UserDto(
+public record UserCreateCommand(
         String email,
         String password,
         String firstName,
         String lastName
-) { }
+) {
+}

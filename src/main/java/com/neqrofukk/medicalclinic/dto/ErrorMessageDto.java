@@ -1,9 +1,9 @@
 package com.neqrofukk.medicalclinic.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ErrorMessageDto(String message,
                               int status,
-                              LocalDate timeOfError
+                              LocalDateTime timeOfError
 ) {
 }

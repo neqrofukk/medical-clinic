@@ -18,6 +18,7 @@ public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String idCardNo;
     private LocalDate birthDay;
     private String phoneNumber;

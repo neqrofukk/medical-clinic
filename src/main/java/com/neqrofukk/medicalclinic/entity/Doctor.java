@@ -1,13 +1,14 @@
 package com.neqrofukk.medicalclinic.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,9 +19,8 @@ public class Doctor {
     private Long id;
     private String specialty;
 
-    @ManyToOne
-    @JoinColumn(name = "clinic_id")
-    private Clinic clinic;
+    @ManyToMany(mappedBy = "doctors")
+    private Set<Clinic> clinics = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

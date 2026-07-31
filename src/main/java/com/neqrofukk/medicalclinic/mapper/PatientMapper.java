@@ -1,7 +1,7 @@
 package com.neqrofukk.medicalclinic.mapper;
 
-import com.neqrofukk.medicalclinic.dto.PatientCreateCommand;
-import com.neqrofukk.medicalclinic.dto.PatientDto;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.entity.Patient;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

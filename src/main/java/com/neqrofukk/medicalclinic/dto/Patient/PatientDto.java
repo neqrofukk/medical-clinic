@@ -1,10 +1,11 @@
-package com.neqrofukk.medicalclinic.dto;
+package com.neqrofukk.medicalclinic.dto.Patient;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 
 public record PatientDto(
+        Long id,
         @Schema(description = "Email address", example = "JohnDoe@example.com")
         String email,
         @Schema(description = "ID Card Number", example = "2000123456786545")

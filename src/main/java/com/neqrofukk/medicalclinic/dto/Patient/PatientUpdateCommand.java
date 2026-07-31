@@ -1,4 +1,4 @@
-package com.neqrofukk.medicalclinic.dto;
+package com.neqrofukk.medicalclinic.dto.Patient;
 
 import java.time.LocalDate;
 

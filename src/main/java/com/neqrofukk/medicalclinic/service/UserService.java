@@ -1,8 +1,9 @@
 package com.neqrofukk.medicalclinic.service;
 
-import com.neqrofukk.medicalclinic.dto.UserDto;
+import com.neqrofukk.medicalclinic.dto.User.UserCreateCommand;
+import com.neqrofukk.medicalclinic.dto.User.UserDto;
+import com.neqrofukk.medicalclinic.dto.User.UserUpdateCommand;
 import com.neqrofukk.medicalclinic.entity.User;
-import com.neqrofukk.medicalclinic.exceptions.InvalidPasswordException;
 import com.neqrofukk.medicalclinic.exceptions.UserNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.UserMapper;
 import com.neqrofukk.medicalclinic.repository.UserRepository;
@@ -28,14 +29,13 @@ public class UserService {
         return  userMapper.toUserDto(userDb);
     }
 
-    public UserDto addUser(UserDto user) {
+    public UserDto addUser(UserCreateCommand user) {
         User userDb = userRepository.save(userMapper.toEntity(user));
         return userMapper.toUserDto(userDb);
     }
 
-    public UserDto updateUser(Long id, UserDto user) {
+    public UserDto updateUser(Long id, UserUpdateCommand user) {
         User userDb = getUserDb(id);
-
         Utils.setIfPresent(user.email(), userDb::setEmail);
         Utils.setIfPresent(user.password(), userDb::setPassword);
         Utils.setIfPresent(user.firstName(), userDb::setFirstName);
@@ -51,9 +51,6 @@ public class UserService {
     }
 
     public void changePassword(Long id, String newPassword) {
-        if (newPassword.isBlank()) {
-            throw new InvalidPasswordException();
-        }
         User userDb = getUserDb(id);
         userDb.setPassword(newPassword);
         userRepository.save(userDb);

@@ -1,14 +1,15 @@
 package com.neqrofukk.medicalclinic.controller;
 
 import com.neqrofukk.medicalclinic.dto.PasswordChangeCommand;
-import com.neqrofukk.medicalclinic.dto.UserDto;
+import com.neqrofukk.medicalclinic.dto.User.UserCreateCommand;
+import com.neqrofukk.medicalclinic.dto.User.UserDto;
+import com.neqrofukk.medicalclinic.dto.User.UserUpdateCommand;
 import com.neqrofukk.medicalclinic.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +20,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-
-    @Autowired
     private final UserService userService;
 
     @Operation(summary = "Get all available users")
@@ -48,7 +47,7 @@ public class UserController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create(@RequestBody UserDto user) {
+    public UserDto create(@RequestBody UserCreateCommand user) {
         return userService.addUser(user);
     }
 
@@ -60,7 +59,7 @@ public class UserController {
     })
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto update(@PathVariable Long id, @RequestBody UserDto user) {
+    public UserDto update(@PathVariable Long id, @RequestBody UserUpdateCommand user) {
         return userService.updateUser(id, user);
     }
 

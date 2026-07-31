@@ -1,15 +1,14 @@
 package com.neqrofukk.medicalclinic.service;
 
-import com.neqrofukk.medicalclinic.dto.PatientCreateCommand;
-import com.neqrofukk.medicalclinic.dto.PatientDto;
-import com.neqrofukk.medicalclinic.dto.PatientUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
 import com.neqrofukk.medicalclinic.entity.Patient;
 import com.neqrofukk.medicalclinic.entity.User;
 import com.neqrofukk.medicalclinic.exceptions.PatientNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.PatientMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
 import com.neqrofukk.medicalclinic.util.Utils;
-import com.neqrofukk.medicalclinic.validators.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,6 @@ public class PatientService {
 
     private final PatientMapper patientMapper;
     private final PatientRepository patientRepository;
-    private final EmailValidator emailValidator;
 
     public List<PatientDto> findAll() {
         return patientRepository.findAll().stream().map(patientMapper::toPatientDto).toList();

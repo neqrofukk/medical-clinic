@@ -1,15 +1,15 @@
 package com.neqrofukk.medicalclinic.controller;
 
-import com.neqrofukk.medicalclinic.dto.DoctorCreateCommand;
-import com.neqrofukk.medicalclinic.dto.DoctorDto;
-import com.neqrofukk.medicalclinic.dto.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDetailsDto;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
 import com.neqrofukk.medicalclinic.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class DoctorController {
-    @Autowired
     private final DoctorService doctorService;
 
     @Operation(summary = "Get all available doctors")
@@ -37,7 +36,7 @@ public class DoctorController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied")
     })
     @GetMapping("/{id}")
-    public DoctorDto findById(@PathVariable Long id) {
+    public DoctorDetailsDto findById(@PathVariable Long id) {
         return doctorService.findById(id);
     }
 
@@ -82,21 +81,21 @@ public class DoctorController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Doctor or clinic not found")
     })
-    @PutMapping("{id}/clinic/{clinicId}")
+    @PutMapping("{doctorId}/clinic/{clinicId}")
     @ResponseStatus(HttpStatus.OK)
-    public DoctorDto addDoctorToClinic(@PathVariable Long id, @PathVariable Long clinicId) {
-        return doctorService.addDoctorToClinic(id, clinicId);
+    public DoctorDetailsDto addClinicToDoctor(@PathVariable Long doctorId, @PathVariable Long clinicId) {
+        return doctorService.addClinicToDoctor(doctorId, clinicId);
     }
 
     @Operation(summary = "Remove doctor from clinic")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Doctor removed from clinic successfully"),
+            @ApiResponse(responseCode = "200", description = "Doctor removed from clinic successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Doctor not found")
     })
-    @PatchMapping("{id}/clinic/remove")
+    @PatchMapping("{doctorId}/clinic/{clinicId}/remove")
     @ResponseStatus(HttpStatus.OK)
-    public DoctorDto removeDoctorFromClinic(@PathVariable Long id) {
-        return doctorService.removeDoctorFromClinic(id);
+    public DoctorDetailsDto removeClinicFromDoctor(@PathVariable Long doctorId, @PathVariable Long clinicId) {
+        return doctorService.removeClinicFromDoctor(doctorId, clinicId);
     }
 }

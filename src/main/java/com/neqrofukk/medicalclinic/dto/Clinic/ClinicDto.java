@@ -1,6 +1,7 @@
-package com.neqrofukk.medicalclinic.dto;
+package com.neqrofukk.medicalclinic.dto.Clinic;
 
-public record ClinicCreateCommand(
+public record ClinicDto(
+        Long id,
         String name,
         String city,
         String zipCode,

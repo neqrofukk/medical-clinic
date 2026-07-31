@@ -1,15 +1,14 @@
 package com.neqrofukk.medicalclinic.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,13 +18,27 @@ public class Clinic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String name;
     private String city;
     private String zipCode;
     private String street;
     private Integer streetNumber;
 
-    @OneToMany(mappedBy="clinic")
-    private List<Doctor> doctors;
+    @ManyToMany
+    @JoinTable(
+            name = "clinic_doctors",
+            joinColumns = @JoinColumn(name = "clinic_id"),
+            inverseJoinColumns = @JoinColumn(name = "doctor_id"))
+    private Set<Doctor> doctors = new HashSet<>();
+
+    public void addDoctor(Doctor doctor) {
+        doctors.add(doctor);
+        doctor.getClinics().add(this);
+    }
+
+    public void removeDoctor(Doctor doctor) {
+        doctors.remove(doctor);
+        doctor.getClinics().remove(this);
+    }
 }
