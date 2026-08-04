@@ -25,6 +25,7 @@ public class DoctorController {
     @Operation(summary = "Get all available doctors")
     @ApiResponse(responseCode = "200", description = "Returned all doctors")
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<DoctorDto> findAll() {
         return doctorService.findAll();
     }
@@ -36,6 +37,7 @@ public class DoctorController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied")
     })
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public DoctorDetailsDto findById(@PathVariable Long id) {
         return doctorService.findById(id);
     }

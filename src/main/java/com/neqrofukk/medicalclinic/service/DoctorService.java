@@ -6,14 +6,12 @@ import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
-import com.neqrofukk.medicalclinic.entity.User;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotFoundException;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.DoctorDetailsMapper;
 import com.neqrofukk.medicalclinic.mapper.DoctorMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
-import com.neqrofukk.medicalclinic.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +28,11 @@ public class DoctorService {
     private final ClinicService clinicService;
 
     public List<DoctorDto> findAll() {
-        return doctorRepository.findAll().stream().map(doctorMapper::toDoctorDto).toList();
+        return doctorRepository
+                .findAll()
+                .stream()
+                .map(doctorMapper::toDoctorDto)
+                .toList();
     }
 
     public DoctorDetailsDto findById(Long id) {
@@ -39,31 +41,15 @@ public class DoctorService {
     }
 
     public DoctorDto addDoctor(DoctorCreateCommand doctor) {
-        User user = new User();
-        user.setEmail(doctor.email());
-        user.setFirstName(doctor.firstName());
-        user.setLastName(doctor.lastName());
-        user.setPassword(doctor.password());
-
-        Doctor doctorEntity = new Doctor();
-        doctorEntity.setSpecialty(doctor.specialty());
-        doctorEntity.setUser(user);
-
+        Doctor doctorEntity = (new Doctor()).addDoctor(doctor);
         Doctor doctorDb = doctorRepository.save(doctorEntity);
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
     public DoctorDto updateDoctor(Long id, DoctorUpdateCommand doctor) {
         Doctor doctorDb = getDoctorDb(id);
-        User userDb = doctorDb.getUser();
-
-        Utils.setIfPresent(doctor.specialty(), doctorDb::setSpecialty);
-        Utils.setIfPresent(doctor.email(), userDb::setEmail);
-        Utils.setIfPresent(doctor.firstName(), userDb::setFirstName);
-        Utils.setIfPresent(doctor.lastName(), userDb::setLastName);
-
+        doctorDb.updateDoctor(doctor);
         doctorRepository.save(doctorDb);
-
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
@@ -86,10 +72,12 @@ public class DoctorService {
     }
 
     private Doctor getDoctorDb(Long id) {
-        return doctorRepository.findById(id).orElseThrow(() -> new DoctorNotFoundException(id));
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 
     private Clinic getClinicDb(Long id) {
-        return clinicRepository.findById(id).orElseThrow(() -> new ClinicNotFoundException(id));
+        return clinicRepository.findById(id)
+                .orElseThrow(() -> new ClinicNotFoundException(id));
     }
 }

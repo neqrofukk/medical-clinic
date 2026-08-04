@@ -1,5 +1,7 @@
 package com.neqrofukk.medicalclinic.entity;
 
+import com.neqrofukk.medicalclinic.dto.User.UserUpdateCommand;
+import com.neqrofukk.medicalclinic.util.Utils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,4 +29,11 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Doctor doctor;
+
+    public void updateUser(UserUpdateCommand user) {
+        Utils.setIfPresent(user.email(), this::setEmail);
+        Utils.setIfPresent(user.password(), this::setPassword);
+        Utils.setIfPresent(user.firstName(), this::setFirstName);
+        Utils.setIfPresent(user.lastName(), this::setLastName);
+    }
 }

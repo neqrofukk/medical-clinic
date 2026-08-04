@@ -25,6 +25,7 @@ public class ClinicController {
     @Operation(summary = "Get all available clinics")
     @ApiResponse(responseCode = "200", description = "Returned all clinics")
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<ClinicDto> findAll() {
         return clinicService.findAll();
     }
@@ -36,6 +37,7 @@ public class ClinicController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied")
     })
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ClinicDetailsDto findById(@PathVariable Long id) {
         return clinicService.findById(id);
     }
@@ -81,7 +83,7 @@ public class ClinicController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Clinic or doctor not found")
     })
-    @PutMapping("{clinicId}/doctor/{doctorId}")
+    @PutMapping("{clinicId}/doctors/{doctorId}")
     @ResponseStatus(HttpStatus.OK)
     public ClinicDetailsDto addDoctorToClinic(@PathVariable Long clinicId, @PathVariable Long doctorId) {
         return clinicService.addDoctorToClinic(clinicId, doctorId);
@@ -93,7 +95,7 @@ public class ClinicController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Clinic or doctor not found")
     })
-    @PatchMapping("{clinicId}/doctor/{doctorId}/remove")
+    @DeleteMapping("{clinicId}/doctors/{doctorId}")
     @ResponseStatus(HttpStatus.OK)
     public ClinicDetailsDto removeDoctorFromClinic(@PathVariable Long clinicId, @PathVariable Long doctorId) {
         return clinicService.removeDoctorFromClinic(clinicId, doctorId);

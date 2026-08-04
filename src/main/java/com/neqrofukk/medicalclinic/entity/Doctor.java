@@ -1,5 +1,8 @@
 package com.neqrofukk.medicalclinic.entity;
 
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.util.Utils;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,4 +29,24 @@ public class Doctor {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    public Doctor addDoctor(DoctorCreateCommand doctor) {
+        User user = new User();
+        user.setEmail(doctor.email());
+        user.setFirstName(doctor.firstName());
+        user.setLastName(doctor.lastName());
+        user.setPassword(doctor.password());
+
+        Doctor doctorEntity = new Doctor();
+        doctorEntity.setSpecialty(doctor.specialty());
+        doctorEntity.setUser(user);
+
+        return doctorEntity;
+    }
+
+    public void updateDoctor(DoctorUpdateCommand doctor) {
+        Utils.setIfPresent(doctor.specialty(), this::setSpecialty);
+        Utils.setIfPresent(doctor.email(), user::setEmail);
+        Utils.setIfPresent(doctor.firstName(), user::setFirstName);
+        Utils.setIfPresent(doctor.lastName(), user::setLastName);
+    }
 }

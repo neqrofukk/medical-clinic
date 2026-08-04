@@ -22,7 +22,11 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     public List<PatientDto> findAll() {
-        return patientRepository.findAll().stream().map(patientMapper::toPatientDto).toList();
+        return patientRepository
+                .findAll()
+                .stream()
+                .map(patientMapper::toPatientDto)
+                .toList();
     }
 
     public PatientDto findById(Long id) {
@@ -70,6 +74,7 @@ public class PatientService {
     
 
     private Patient getPatientDb(Long id) {
-        return patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException(id));
+        return patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException(id));
     }
 }

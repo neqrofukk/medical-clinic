@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class MedicalClinicExceptionHandler {
+
     @ExceptionHandler(MedicalClinicException.class)
     public ResponseEntity<ErrorMessageDto> handleMedicalClinicException(MedicalClinicException exception) {
         return ResponseEntity.status(exception.getStatus())

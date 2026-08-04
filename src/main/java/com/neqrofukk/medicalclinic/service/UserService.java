@@ -7,7 +7,6 @@ import com.neqrofukk.medicalclinic.entity.User;
 import com.neqrofukk.medicalclinic.exceptions.UserNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.UserMapper;
 import com.neqrofukk.medicalclinic.repository.UserRepository;
-import com.neqrofukk.medicalclinic.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +20,16 @@ public class UserService {
     private final UserMapper userMapper;
 
     public List<UserDto> findAll() {
-        return userRepository.findAll().stream().map(userMapper::toUserDto).toList();
+        return userRepository
+                .findAll()
+                .stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     public UserDto findById(Long id) {
         User userDb = getUserDb(id);
-        return  userMapper.toUserDto(userDb);
+        return userMapper.toUserDto(userDb);
     }
 
     public UserDto addUser(UserCreateCommand user) {
@@ -36,11 +39,7 @@ public class UserService {
 
     public UserDto updateUser(Long id, UserUpdateCommand user) {
         User userDb = getUserDb(id);
-        Utils.setIfPresent(user.email(), userDb::setEmail);
-        Utils.setIfPresent(user.password(), userDb::setPassword);
-        Utils.setIfPresent(user.firstName(), userDb::setFirstName);
-        Utils.setIfPresent(user.lastName(), userDb::setLastName);
-        
+        userDb.updateUser(user);
 
         User updatedUser = userRepository.save(userDb);
         return userMapper.toUserDto(updatedUser);
@@ -57,7 +56,8 @@ public class UserService {
     }
 
     private User getUserDb(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
-    
+
 }

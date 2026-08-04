@@ -25,6 +25,7 @@ public class UserController {
     @Operation(summary = "Get all available users")
     @ApiResponse(responseCode = "200", description = "Returned all users")
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findAll() {
         return userService.findAll();
     }
@@ -36,6 +37,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid id")
     })
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public UserDto findById(@PathVariable Long id) {
         return userService.findById(id);
     }

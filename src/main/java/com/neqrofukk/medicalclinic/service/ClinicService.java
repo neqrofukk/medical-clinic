@@ -13,7 +13,6 @@ import com.neqrofukk.medicalclinic.mapper.ClinicDetailsMapper;
 import com.neqrofukk.medicalclinic.mapper.ClinicMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
-import com.neqrofukk.medicalclinic.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,11 @@ public class ClinicService {
     private final DoctorRepository doctorRepository;
 
     public List<ClinicDto> findAll() {
-        return clinicRepository.findAll().stream().map(clinicMapper::toClinicDto).toList();
+        return clinicRepository
+                .findAll()
+                .stream()
+                .map(clinicMapper::toClinicDto)
+                .toList();
     }
 
     public ClinicDetailsDto findById(Long id) {
@@ -44,32 +47,24 @@ public class ClinicService {
 
     public ClinicDto updateClinic(Long id, ClinicUpdateCommand clinic) {
         Clinic clinicDb = getClinicDb(id);
-
-        Utils.setIfPresent(clinic.name(), clinicDb::setName);
-        Utils.setIfPresent(clinic.city(), clinicDb::setCity);
-        Utils.setIfPresent(clinic.zipCode(), clinicDb::setZipCode);
-        Utils.setIfPresent(clinic.street(), clinicDb::setStreet);
-        Utils.setIfPositiveNumber(clinic.streetNumber(), clinicDb::setStreetNumber);
-
+        clinicDb.updateClinic(clinic);
         clinicRepository.save(clinicDb);
-
         return clinicMapper.toClinicDto(clinicDb);
     }
 
     public void deleteClinic(Long id) {
-        Clinic clinicDb = getClinicDb(id);
-        if (clinicDb.getDoctors().isEmpty()) {
-            clinicRepository.deleteById(id);
-        } else {
+        Clinic clinic = getClinicDb(id);
+        if (!(clinic.getDoctors().isEmpty())) {
             throw new ClinicNotEmptyException(id);
         }
+        clinicRepository.deleteById(id);
     }
 
     public ClinicDetailsDto addDoctorToClinic(Long clinicId, Long doctorId) {
-        Doctor doctorDb = getDoctorDb(doctorId);
-        Clinic clinicDb = getClinicDb(clinicId);
-        linkDoctorAndClinic(clinicDb, doctorDb);
-        return clinicDetailsMapper.toClinicDetailsDto(clinicDb);
+        Doctor doctor = getDoctorDb(doctorId);
+        Clinic clinic = getClinicDb(clinicId);
+        linkDoctorAndClinic(clinic, doctor);
+        return clinicDetailsMapper.toClinicDetailsDto(clinic);
     }
 
     public ClinicDetailsDto removeDoctorFromClinic(Long clinicId, Long doctorId) {
@@ -94,6 +89,7 @@ public class ClinicService {
     }
 
     private Doctor getDoctorDb(Long id) {
-        return doctorRepository.findById(id).orElseThrow(() -> new DoctorNotFoundException(id));
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 }

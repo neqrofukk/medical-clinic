@@ -1,5 +1,7 @@
 package com.neqrofukk.medicalclinic.entity;
 
+import com.neqrofukk.medicalclinic.dto.Clinic.ClinicUpdateCommand;
+import com.neqrofukk.medicalclinic.util.Utils;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,6 +33,14 @@ public class Clinic {
             joinColumns = @JoinColumn(name = "clinic_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id"))
     private Set<Doctor> doctors = new HashSet<>();
+
+    public void updateClinic(ClinicUpdateCommand clinic) {
+        Utils.setIfPresent(clinic.name(), this::setName);
+        Utils.setIfPresent(clinic.city(), this::setCity);
+        Utils.setIfPresent(clinic.zipCode(), this::setZipCode);
+        Utils.setIfPresent(clinic.street(), this::setStreet);
+        Utils.setIfPositiveNumber(clinic.streetNumber(), this::setStreetNumber);
+    }
 
     public void addDoctor(Doctor doctor) {
         doctors.add(doctor);
