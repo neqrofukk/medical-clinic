@@ -1,7 +1,0 @@
-package com.neqrofukk.medicalclinic.exceptions;
-
-public class VisitNotFoundException extends RuntimeException {
-  public VisitNotFoundException(String message) {
-    super(message);
-  }
-}

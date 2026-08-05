@@ -3,6 +3,7 @@ package com.neqrofukk.medicalclinic.controller;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
+import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Tag(name = "patients", description = "Operations for managing patients")
 @RequestMapping("/patients")
@@ -74,5 +76,15 @@ public class PatientController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         patientService.deletePatient(id);
+    }
+
+    @Operation(summary = "Get all visits for patient")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returned all visits for patient")
+    })
+    @GetMapping("{id}/visits")
+    @ResponseStatus(HttpStatus.OK)
+    public Set<Visit> findAllVisits(@PathVariable Long id) {
+        return patientService.findAllVisits(id);
     }
 }

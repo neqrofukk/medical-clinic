@@ -1,6 +1,7 @@
 package com.neqrofukk.medicalclinic.util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -17,6 +18,12 @@ public final class Utils {
     }
 
     public static void setIfNotNullDate(LocalDate val, Consumer<LocalDate> setter) {
+        if (val != null) {
+            setter.accept(val);
+        }
+    }
+
+    public static void setIfNotNullDateTime(LocalDateTime val, Consumer<LocalDateTime> setter) {
         if (val != null) {
             setter.accept(val);
         }

@@ -1,15 +1,17 @@
 package com.neqrofukk.medicalclinic.entity;
 
+import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
+import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
+import com.neqrofukk.medicalclinic.util.Utils;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,4 +28,32 @@ public class Patient {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Visit> visit;
+
+    public Patient addPatient(PatientCreateCommand patient) {
+        User user = new User();
+        user.setEmail(patient.email());
+        user.setFirstName(patient.firstName());
+        user.setLastName(patient.lastName());
+        user.setPassword(patient.password());
+
+        Patient patientEntity = new Patient();
+        patientEntity.setIdCardNo(patient.idCardNo());
+        patientEntity.setBirthDay(patient.birthDay());
+        patientEntity.setPhoneNumber(patient.phoneNumber());
+        patientEntity.setUser(user);
+
+        return patientEntity;
+    }
+
+    public void updatePatient(PatientUpdateCommand patient) {
+        Utils.setIfPresent(patient.idCardNo(), this::setIdCardNo);
+        Utils.setIfNotNullDate(patient.birthDay(), this::setBirthDay);
+        Utils.setIfPresent(patient.phoneNumber(), this::setPhoneNumber);
+        Utils.setIfPresent(patient.email(), user::setEmail);
+        Utils.setIfPresent(patient.firstName(), user::setFirstName);
+        Utils.setIfPresent(patient.lastName(), user::setLastName);
+    }
 }

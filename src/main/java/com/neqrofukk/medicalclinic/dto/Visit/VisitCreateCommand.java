@@ -1,4 +1,10 @@
 package com.neqrofukk.medicalclinic.dto.Visit;
 
-public record VisitCreateCommand() {
+import java.time.LocalDateTime;
+
+public record VisitCreateCommand(
+        LocalDateTime startTime,
+        LocalDateTime endTime,
+        Long doctorId
+) {
 }

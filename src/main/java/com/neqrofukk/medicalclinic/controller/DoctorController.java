@@ -4,6 +4,7 @@ import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Tag(name = "doctors", description = "Operations for managing doctors")
 @RequestMapping("/doctors")
@@ -95,9 +97,19 @@ public class DoctorController {
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
             @ApiResponse(responseCode = "404", description = "Doctor not found")
     })
-    @PatchMapping("{doctorId}/clinic/{clinicId}/remove")
+    @DeleteMapping("{doctorId}/clinic/{clinicId}")
     @ResponseStatus(HttpStatus.OK)
     public DoctorDetailsDto removeClinicFromDoctor(@PathVariable Long doctorId, @PathVariable Long clinicId) {
         return doctorService.removeClinicFromDoctor(doctorId, clinicId);
+    }
+
+    @Operation(summary = "Get all visits for doctor")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returned all visits for doctor")
+    })
+    @GetMapping("{id}/visits")
+    @ResponseStatus(HttpStatus.OK)
+    public Set<Visit> findAllVisits(@PathVariable Long id) {
+        return doctorService.findAllVisits(id);
     }
 }

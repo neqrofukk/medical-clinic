@@ -6,6 +6,7 @@ import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
+import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotFoundException;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.DoctorDetailsMapper;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +73,11 @@ public class DoctorService {
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
+    public Set<Visit> findAllVisits(Long doctorId) {
+        Doctor doctor = getDoctorDb(doctorId);
+        return doctor.getVisit();
+    }
+    
     private Doctor getDoctorDb(Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException(id));

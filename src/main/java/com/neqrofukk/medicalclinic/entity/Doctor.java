@@ -22,12 +22,15 @@ public class Doctor {
     private Long id;
     private String specialty;
 
-    @ManyToMany(mappedBy = "doctors")
+    @ManyToMany(mappedBy = "doctor")
     private Set<Clinic> clinics = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @OneToMany(mappedBy = "doctor")
+    private Set<Visit> visit;
 
     public Doctor addDoctor(DoctorCreateCommand doctor) {
         User user = new User();
