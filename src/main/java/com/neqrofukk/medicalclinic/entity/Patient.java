@@ -30,7 +30,7 @@ public class Patient {
     private User user;
 
     @OneToMany(mappedBy = "patient")
-    private Set<Visit> visit;
+    private Set<Visit> visits;
 
     public Patient addPatient(PatientCreateCommand patient) {
         User user = new User();

@@ -4,13 +4,14 @@ import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
-import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotFoundException;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.DoctorDetailsMapper;
 import com.neqrofukk.medicalclinic.mapper.DoctorMapper;
+import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class DoctorService {
     private final DoctorDetailsMapper doctorDetailsMapper;
     private final ClinicRepository clinicRepository;
     private final ClinicService clinicService;
+    private final VisitMapper visitMapper;
 
     public List<DoctorDto> findAll() {
         return doctorRepository
@@ -73,11 +76,14 @@ public class DoctorService {
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
-    public Set<Visit> findAllVisits(Long doctorId) {
+    public Set<VisitDto> findAllVisits(Long doctorId) {
         Doctor doctor = getDoctorDb(doctorId);
-        return doctor.getVisit();
+        return doctor.getVisits()
+                .stream()
+                .map(visitMapper::toVisitDto)
+                .collect(Collectors.toSet());
     }
-    
+
     private Doctor getDoctorDb(Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException(id));

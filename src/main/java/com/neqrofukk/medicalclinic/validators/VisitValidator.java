@@ -19,13 +19,13 @@ public class VisitValidator implements Validator<VisitValidityCheck> {
     
     @Override
     public void validate(VisitValidityCheck check) {
-        checkIfOverlaps(check.doctor().getVisit(), check.startTime(), check.endTime(), check.editedVisitId());
+        checkIfOverlaps(check.doctor().getVisits(), check.startTime(), check.endTime(), check.editedVisitId());
         checkIfFutureDate(check);
         checkIfQuarterHour(check);
     }
 
     public void validatePatientOverlap(Patient patient, LocalDateTime startTime, LocalDateTime endTime, Long editedVisitId) {
-        checkIfOverlaps(patient.getVisit(), startTime, endTime, editedVisitId);
+        checkIfOverlaps(patient.getVisits(), startTime, endTime, editedVisitId);
     }
 
     private void checkIfOverlaps(Set<Visit> visits, LocalDateTime startTime, LocalDateTime endTime, Long editedVisitId) {

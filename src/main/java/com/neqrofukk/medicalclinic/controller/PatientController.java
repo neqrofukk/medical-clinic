@@ -3,7 +3,7 @@ package com.neqrofukk.medicalclinic.controller;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
-import com.neqrofukk.medicalclinic.entity.Visit;
+import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -84,7 +84,7 @@ public class PatientController {
     })
     @GetMapping("{id}/visits")
     @ResponseStatus(HttpStatus.OK)
-    public Set<Visit> findAllVisits(@PathVariable Long id) {
+    public Set<VisitDto> findAllVisits(@PathVariable Long id) {
         return patientService.findAllVisits(id);
     }
 }

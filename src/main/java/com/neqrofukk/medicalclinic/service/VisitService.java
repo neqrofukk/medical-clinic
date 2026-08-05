@@ -18,6 +18,7 @@ import com.neqrofukk.medicalclinic.repository.VisitRepository;
 import com.neqrofukk.medicalclinic.validators.VisitValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -55,14 +56,15 @@ public class VisitService {
         return visitMapper.toVisitDto(visitDb);
     }
 
+    @Transactional
     public VisitDto updateVisit(Long id, VisitUpdateCommand visit) {
-        Doctor doctorDb = getDoctorDb(visit.doctorId());
+        Visit visitDb = getVisitDb(id);
+        Doctor doctorDb = visit.doctorId() != null ? getDoctorDb(visit.doctorId()) : visitDb.getDoctor();
+        visitDb.updateVisit(visit, doctorDb);
 
         VisitValidityCheck check = new VisitValidityCheck(doctorDb, visit.startTime(), visit.endTime(), id);
         visitValidator.validate(check);
 
-        Visit visitDb = getVisitDb(id);
-        visitDb.updateVisit(visit, doctorDb);
         visitRepository.save(visitDb);
         return visitMapper.toVisitDto(visitDb);
     }

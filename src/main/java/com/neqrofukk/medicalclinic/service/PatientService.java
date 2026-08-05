@@ -3,16 +3,18 @@ package com.neqrofukk.medicalclinic.service;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.entity.Patient;
-import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.exceptions.PatientNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.PatientMapper;
+import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class PatientService {
 
     private final PatientMapper patientMapper;
     private final PatientRepository patientRepository;
+    private final VisitMapper visitMapper;
 
     public List<PatientDto> findAll() {
         return patientRepository
@@ -51,9 +54,12 @@ public class PatientService {
         patientRepository.deleteById(id);
     }
 
-    public Set<Visit> findAllVisits(Long patientId) {
+    public Set<VisitDto> findAllVisits(Long patientId) {
         Patient patient = getPatientDb(patientId);
-        return patient.getVisit();
+        return patient.getVisits()
+                .stream()
+                .map(visitMapper::toVisitDto)
+                .collect(Collectors.toSet());
     }
 
     private Patient getPatientDb(Long id) {

@@ -22,7 +22,7 @@ public class Doctor {
     private Long id;
     private String specialty;
 
-    @ManyToMany(mappedBy = "doctor")
+    @ManyToMany(mappedBy = "doctors")
     private Set<Clinic> clinics = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -30,7 +30,7 @@ public class Doctor {
     private User user;
 
     @OneToMany(mappedBy = "doctor")
-    private Set<Visit> visit;
+    private Set<Visit> visits;
 
     public Doctor addDoctor(DoctorCreateCommand doctor) {
         User user = new User();
