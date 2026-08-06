@@ -1,5 +1,6 @@
 package com.neqrofukk.medicalclinic.controller;
 
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
@@ -10,10 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @Tag(name = "patients", description = "Operations for managing patients")
@@ -23,12 +25,12 @@ import java.util.Set;
 public class PatientController {
     private final PatientService patientService;
 
-    @Operation(summary = "Get all available patients")
-    @ApiResponse(responseCode = "200", description = "Returned all patients")
+    @Operation(summary = "Get patients")
+    @ApiResponse(responseCode = "200", description = "Returned patients")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<PatientDto> findAll() {
-        return patientService.findAll();
+    public PageResponse<PatientDto> getPatients(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
+        return patientService.getPatients(pageable);
     }
 
     @Operation(summary = "Get patient by id")

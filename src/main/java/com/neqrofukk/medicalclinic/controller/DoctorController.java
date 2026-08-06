@@ -4,6 +4,7 @@ import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,10 +12,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @Tag(name = "doctors", description = "Operations for managing doctors")
@@ -24,12 +25,12 @@ import java.util.Set;
 public class DoctorController {
     private final DoctorService doctorService;
 
-    @Operation(summary = "Get all available doctors")
-    @ApiResponse(responseCode = "200", description = "Returned all doctors")
+    @Operation(summary = "Gete doctors")
+    @ApiResponse(responseCode = "200", description = "Returned doctors")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<DoctorDto> findAll() {
-        return doctorService.findAll();
+    public PageResponse<DoctorDto> getDoctors(Pageable pageable) {
+        return doctorService.getDoctors(pageable);
     }
 
     @Operation(summary = "Get doctor by id")

@@ -4,6 +4,7 @@ import com.neqrofukk.medicalclinic.dto.Clinic.ClinicCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicDto;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotEmptyException;
@@ -13,26 +14,31 @@ import com.neqrofukk.medicalclinic.mapper.ClinicDetailsMapper;
 import com.neqrofukk.medicalclinic.mapper.ClinicMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
+import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ClinicService {
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "name", "city");
 
     private final ClinicRepository clinicRepository;
     private final ClinicMapper clinicMapper;
     private final ClinicDetailsMapper clinicDetailsMapper;
     private final DoctorRepository doctorRepository;
 
-    public List<ClinicDto> findAll() {
-        return clinicRepository
-                .findAll()
-                .stream()
-                .map(clinicMapper::toClinicDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public PageResponse<ClinicDto> getClinics(Pageable pageable) {
+        SortValidator.validate(pageable.getSort(), ALLOWED_SORT_FIELDS);
+
+        Page<Clinic> page = clinicRepository.findAll(pageable);
+        return PageResponse.from(page.map(clinicMapper::toClinicDto));
     }
 
     public ClinicDetailsDto findById(Long id) {

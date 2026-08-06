@@ -4,16 +4,16 @@ import com.neqrofukk.medicalclinic.dto.Clinic.ClinicCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicDto;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.service.ClinicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "clinics", description = "Operations for managing clinics")
 @RequestMapping("/clinics")
@@ -22,12 +22,12 @@ import java.util.List;
 public class ClinicController {
     private final ClinicService clinicService;
 
-    @Operation(summary = "Get all available clinics")
-    @ApiResponse(responseCode = "200", description = "Returned all clinics")
+    @Operation(summary = "Get clinics")
+    @ApiResponse(responseCode = "200", description = "Returned clinics")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ClinicDto> findAll() {
-        return clinicService.findAll();
+    public PageResponse<ClinicDto> getClinics(Pageable pageable) {
+        return clinicService.getClinics(pageable);
     }
 
     @Operation(summary = "Get clinic by id")

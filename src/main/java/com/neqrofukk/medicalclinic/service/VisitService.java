@@ -1,5 +1,6 @@
 package com.neqrofukk.medicalclinic.service;
 
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitUpdateCommand;
@@ -15,29 +16,33 @@ import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
 import com.neqrofukk.medicalclinic.repository.VisitRepository;
+import com.neqrofukk.medicalclinic.validators.SortValidator;
 import com.neqrofukk.medicalclinic.validators.VisitValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class VisitService {
-    
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "startTime", "endTime", "doctorId", "patientId");
+
     private final VisitRepository visitRepository;
     private final VisitMapper visitMapper;
     private final VisitValidator visitValidator;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
 
-    public List<VisitDto> findAll() {
-        return visitRepository
-                .findAll()
-                .stream()
-                .map(visitMapper::toVisitDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public PageResponse<VisitDto> getVisits(Pageable pageable) {
+        SortValidator.validate(pageable.getSort(), ALLOWED_SORT_FIELDS);
+
+        Page<Visit> page = visitRepository.findAll(pageable);
+        return PageResponse.from(page.map(visitMapper::toVisitDto));
     }
 
     public VisitDto findById(Long id) {

@@ -1,5 +1,6 @@
 package com.neqrofukk.medicalclinic.controller;
 
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitUpdateCommand;
@@ -9,10 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "visit", description = "Operations for managing visits")
 @RequestMapping("/visits")
@@ -21,12 +21,12 @@ import java.util.List;
 public class VisitController {
     private final VisitService visitService;
 
-    @Operation(summary = "Get all available visits")
-    @ApiResponse(responseCode = "200", description = "Returned all visits")
+    @Operation(summary = "Get visits")
+    @ApiResponse(responseCode = "200", description = "Returned visits")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<VisitDto> findAll() {
-        return visitService.findAll();
+    public PageResponse<VisitDto> getVisits(Pageable pageable) {
+        return visitService.getVisits(pageable);
     }
 
     @Operation(summary = "Get visit by id")

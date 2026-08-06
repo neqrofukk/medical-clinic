@@ -4,6 +4,7 @@ import com.neqrofukk.medicalclinic.dto.Doctor.DoctorCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.Doctor.DoctorUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
@@ -14,16 +15,20 @@ import com.neqrofukk.medicalclinic.mapper.DoctorMapper;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
+import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DoctorService {
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "lastName", "speciality");
 
     private final DoctorRepository doctorRepository;
     private final DoctorMapper doctorMapper;
@@ -32,12 +37,12 @@ public class DoctorService {
     private final ClinicService clinicService;
     private final VisitMapper visitMapper;
 
-    public List<DoctorDto> findAll() {
-        return doctorRepository
-                .findAll()
-                .stream()
-                .map(doctorMapper::toDoctorDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public PageResponse<DoctorDto> getDoctors(Pageable pageable) {
+        SortValidator.validate(pageable.getSort(), ALLOWED_SORT_FIELDS);
+
+        Page<Doctor> page = doctorRepository.findAll(pageable);
+        return PageResponse.from(page.map(doctorMapper::toDoctorDto));
     }
 
     public DoctorDetailsDto findById(Long id) {

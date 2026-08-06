@@ -1,5 +1,6 @@
 package com.neqrofukk.medicalclinic.controller;
 
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.PasswordChangeCommand;
 import com.neqrofukk.medicalclinic.dto.User.UserCreateCommand;
 import com.neqrofukk.medicalclinic.dto.User.UserDto;
@@ -10,10 +11,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "users", description = "Operations for managing users")
 @RequestMapping("/users")
@@ -22,12 +22,12 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @Operation(summary = "Get all available users")
-    @ApiResponse(responseCode = "200", description = "Returned all users")
+    @Operation(summary = "Get users")
+    @ApiResponse(responseCode = "200", description = "Returned users")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findAll() {
-        return userService.findAll();
+    public PageResponse<UserDto> getUsers(Pageable pageable) {
+        return userService.getUsers(pageable);
     }
 
     @Operation(summary = "Get user by id")

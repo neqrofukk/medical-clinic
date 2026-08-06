@@ -1,5 +1,6 @@
 package com.neqrofukk.medicalclinic.service;
 
+import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
@@ -9,27 +10,31 @@ import com.neqrofukk.medicalclinic.exceptions.PatientNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.PatientMapper;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
+import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PatientService {
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "lastName", "firstName", "birthDay");
 
     private final PatientMapper patientMapper;
     private final PatientRepository patientRepository;
     private final VisitMapper visitMapper;
 
-    public List<PatientDto> findAll() {
-        return patientRepository
-                .findAll()
-                .stream()
-                .map(patientMapper::toPatientDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public PageResponse<PatientDto> getPatients(Pageable pageable) {
+        SortValidator.validate(pageable.getSort(), ALLOWED_SORT_FIELDS);
+
+        Page<Patient> page = patientRepository.findAll(pageable);
+        return PageResponse.from(page.map(patientMapper::toPatientDto));
     }
 
     public PatientDto findById(Long id) {
