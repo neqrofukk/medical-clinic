@@ -52,4 +52,18 @@ public class Doctor {
         Utils.setIfPresent(doctor.firstName(), user::setFirstName);
         Utils.setIfPresent(doctor.lastName(), user::setLastName);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Doctor))
+            return false;
+        Doctor other = (Doctor) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

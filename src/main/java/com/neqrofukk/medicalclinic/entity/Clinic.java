@@ -51,4 +51,18 @@ public class Clinic {
         doctors.remove(doctor);
         doctor.getClinics().remove(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Clinic))
+            return false;
+        Clinic other = (Clinic) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

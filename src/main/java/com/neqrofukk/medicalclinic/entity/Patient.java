@@ -5,8 +5,10 @@ import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
 import com.neqrofukk.medicalclinic.util.Utils;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -20,6 +22,7 @@ public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NaturalId
     @Column(unique = true)
     private String idCardNo;
     private LocalDate birthDay;
@@ -55,5 +58,18 @@ public class Patient {
         Utils.setIfPresent(patient.email(), user::setEmail);
         Utils.setIfPresent(patient.firstName(), user::setFirstName);
         Utils.setIfPresent(patient.lastName(), user::setLastName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Patient)) return false;
+        Patient patient = (Patient) o;
+        return Objects.equals(getIdCardNo(), patient.getIdCardNo());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getIdCardNo());
     }
 }

@@ -44,4 +44,18 @@ public class Visit {
         Utils.setIfNotNullDateTime(visit.endTime(), this::setEndTime);
         setDoctor(doctor);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Visit))
+            return false;
+        Visit other = (Visit) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
