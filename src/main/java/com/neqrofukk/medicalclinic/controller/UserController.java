@@ -27,7 +27,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Returned users")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<UserDto> getUsers(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
+    public PageResponse<UserDto> getUsers(@PageableDefault(sort = "lastName") Pageable pageable) {
         return userService.getUsers(pageable);
     }
 

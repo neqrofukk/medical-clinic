@@ -27,7 +27,7 @@ public class ClinicController {
     @ApiResponse(responseCode = "200", description = "Returned clinics")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<ClinicDto> getClinics(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
+    public PageResponse<ClinicDto> getClinics(@PageableDefault(sort = "lastName") Pageable pageable) {
         return clinicService.getClinics(pageable);
     }
 

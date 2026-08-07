@@ -29,7 +29,7 @@ public class PatientController {
     @ApiResponse(responseCode = "200", description = "Returned patients")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<PatientDto> getPatients(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
+    public PageResponse<PatientDto> getPatients(@PageableDefault(sort = "lastName") Pageable pageable) {
         return patientService.getPatients(pageable);
     }
 
