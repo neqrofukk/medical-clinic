@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Returned users")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<UserDto> getUsers(Pageable pageable) {
+    public PageResponse<UserDto> getUsers(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
         return userService.getUsers(pageable);
     }
 

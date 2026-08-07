@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,11 +26,11 @@ import java.util.Set;
 public class DoctorController {
     private final DoctorService doctorService;
 
-    @Operation(summary = "Gete doctors")
+    @Operation(summary = "Get doctors")
     @ApiResponse(responseCode = "200", description = "Returned doctors")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<DoctorDto> getDoctors(Pageable pageable) {
+    public PageResponse<DoctorDto> getDoctors(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
         return doctorService.getDoctors(pageable);
     }
 
