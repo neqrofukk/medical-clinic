@@ -30,8 +30,11 @@ public class DoctorController {
     @ApiResponse(responseCode = "200", description = "Returned doctors")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<DoctorDto> getDoctors(@PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
-        return doctorService.getDoctors(pageable);
+    public PageResponse<DoctorDto> getDoctors(
+            @RequestParam(required = false) String specialty,
+            @PageableDefault(sort = "lastName") Pageable pageable
+    ) {
+        return doctorService.getDoctors(specialty, pageable);
     }
 
     @Operation(summary = "Get doctor by id")

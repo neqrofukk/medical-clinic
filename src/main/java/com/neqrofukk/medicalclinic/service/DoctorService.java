@@ -15,10 +15,12 @@ import com.neqrofukk.medicalclinic.mapper.DoctorMapper;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
+import com.neqrofukk.medicalclinic.specifications.DoctorSpecifications;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,10 +40,12 @@ public class DoctorService {
     private final VisitMapper visitMapper;
 
     @Transactional(readOnly = true)
-    public PageResponse<DoctorDto> getDoctors(Pageable pageable) {
+    public PageResponse<DoctorDto> getDoctors(String specialty, Pageable pageable) {
         SortValidator.validate(pageable.getSort(), ALLOWED_SORT_FIELDS);
 
-        Page<Doctor> page = doctorRepository.findAll(pageable);
+        Specification<Doctor> spec = DoctorSpecifications.build(specialty);
+
+        Page<Doctor> page = doctorRepository.findAll(spec, pageable);
         return PageResponse.from(page.map(doctorMapper::toDoctorDto));
     }
 
