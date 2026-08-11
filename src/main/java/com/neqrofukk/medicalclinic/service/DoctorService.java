@@ -49,17 +49,20 @@ public class DoctorService {
         return PageResponse.from(page.map(doctorMapper::toDoctorDto));
     }
 
+    @Transactional(readOnly = true)
     public DoctorDetailsDto findById(Long id) {
         Doctor doctorDb = getDoctorDb(id);
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
+    @Transactional
     public DoctorDto addDoctor(DoctorCreateCommand doctor) {
         Doctor doctorEntity = (new Doctor()).addDoctor(doctor);
         Doctor doctorDb = doctorRepository.save(doctorEntity);
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
+    @Transactional
     public DoctorDto updateDoctor(Long id, DoctorUpdateCommand doctor) {
         Doctor doctorDb = getDoctorDb(id);
         doctorDb.updateDoctor(doctor);
@@ -67,10 +70,12 @@ public class DoctorService {
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
+    @Transactional
     public void deleteDoctor(Long id) {
         doctorRepository.deleteById(id);
     }
 
+    @Transactional
     public DoctorDetailsDto addClinicToDoctor(Long doctorId, Long clinicId) {
         Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
@@ -78,6 +83,7 @@ public class DoctorService {
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
+    @Transactional
     public DoctorDetailsDto removeClinicFromDoctor(Long doctorId, Long clinicId) {
         Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
@@ -85,6 +91,7 @@ public class DoctorService {
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
+    @Transactional(readOnly = true)
     public Set<VisitDto> findAllVisits(Long doctorId) {
         Doctor doctor = getDoctorDb(doctorId);
         return doctor.getVisits()

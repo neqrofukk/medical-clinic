@@ -30,6 +30,9 @@ public class Visit {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
+    @Version
+    private Long version;
+
     public Visit addVisit(VisitCreateCommand visit, Doctor doctor) {
         Visit visitEntity = new Visit();
         visitEntity.setStartTime(visit.startTime());

@@ -33,16 +33,19 @@ public class UserService {
         return PageResponse.from(page.map(userMapper::toUserDto));
     }
 
+    @Transactional(readOnly = true)
     public UserDto findById(Long id) {
         User userDb = getUserDb(id);
         return userMapper.toUserDto(userDb);
     }
 
+    @Transactional
     public UserDto addUser(UserCreateCommand user) {
         User userDb = userRepository.save(userMapper.toEntity(user));
         return userMapper.toUserDto(userDb);
     }
 
+    @Transactional
     public UserDto updateUser(Long id, UserUpdateCommand user) {
         User userDb = getUserDb(id);
         userDb.updateUser(user);
@@ -51,10 +54,12 @@ public class UserService {
         return userMapper.toUserDto(updatedUser);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
+    @Transactional
     public void changePassword(Long id, String newPassword) {
         User userDb = getUserDb(id);
         userDb.setPassword(newPassword);

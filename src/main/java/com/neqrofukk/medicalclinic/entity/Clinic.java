@@ -34,6 +34,9 @@ public class Clinic {
             inverseJoinColumns = @JoinColumn(name = "doctor_id"))
     private Set<Doctor> doctors = new HashSet<>();
 
+    @Version
+    private Long version;
+
     public void updateClinic(ClinicUpdateCommand clinic) {
         Utils.setIfPresent(clinic.name(), this::setName);
         Utils.setIfPresent(clinic.city(), this::setCity);

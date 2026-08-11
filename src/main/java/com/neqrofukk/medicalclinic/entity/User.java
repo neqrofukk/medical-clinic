@@ -28,6 +28,9 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Doctor doctor;
 
+    @Version
+    private Long version;
+
     public void updateUser(UserUpdateCommand user) {
         Utils.setIfPresent(user.email(), this::setEmail);
         Utils.setIfPresent(user.password(), this::setPassword);

@@ -41,16 +41,19 @@ public class ClinicService {
         return PageResponse.from(page.map(clinicMapper::toClinicDto));
     }
 
+    @Transactional(readOnly = true)
     public ClinicDetailsDto findById(Long id) {
         Clinic clinicDb = getClinicDb(id);
         return clinicDetailsMapper.toClinicDetailsDto(clinicDb);
     }
 
+    @Transactional
     public ClinicDto addClinic(ClinicCreateCommand clinic) {
         Clinic clinicDb = clinicRepository.save(clinicMapper.toEntity(clinic));
         return clinicMapper.toClinicDto(clinicDb);
     }
 
+    @Transactional
     public ClinicDto updateClinic(Long id, ClinicUpdateCommand clinic) {
         Clinic clinicDb = getClinicDb(id);
         clinicDb.updateClinic(clinic);
@@ -58,6 +61,7 @@ public class ClinicService {
         return clinicMapper.toClinicDto(clinicDb);
     }
 
+    @Transactional
     public void deleteClinic(Long id) {
         Clinic clinic = getClinicDb(id);
         if (!(clinic.getDoctors().isEmpty())) {
@@ -66,6 +70,7 @@ public class ClinicService {
         clinicRepository.deleteById(id);
     }
 
+    @Transactional
     public ClinicDetailsDto addDoctorToClinic(Long clinicId, Long doctorId) {
         Doctor doctor = getDoctorDb(doctorId);
         Clinic clinic = getClinicDb(clinicId);
@@ -73,6 +78,7 @@ public class ClinicService {
         return clinicDetailsMapper.toClinicDetailsDto(clinic);
     }
 
+    @Transactional
     public ClinicDetailsDto removeDoctorFromClinic(Long clinicId, Long doctorId) {
         Clinic clinicDb = getClinicDb(clinicId);
         Doctor doctorDb = getDoctorDb(doctorId);
@@ -80,11 +86,13 @@ public class ClinicService {
         return clinicDetailsMapper.toClinicDetailsDto(clinicRepository.save(clinicDb));
     }
 
+    @Transactional
     public void linkDoctorAndClinic(Clinic clinic, Doctor doctor) {
         clinic.addDoctor(doctor);
         clinicRepository.save(clinic);
     }
 
+    @Transactional
     public void unlinkDoctorAndClinic(Clinic clinic, Doctor doctor) {
         clinic.removeDoctor(doctor);
         clinicRepository.save(clinic);

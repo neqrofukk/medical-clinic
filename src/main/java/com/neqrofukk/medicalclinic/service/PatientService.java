@@ -37,17 +37,20 @@ public class PatientService {
         return PageResponse.from(page.map(patientMapper::toPatientDto));
     }
 
+    @Transactional(readOnly = true)
     public PatientDto findById(Long id) {
         Patient patientDb = getPatientDb(id);
         return patientMapper.toPatientDto(patientDb);
     }
 
+    @Transactional
     public PatientDto addPatient(PatientCreateCommand patient) {
         Patient patientEntity = (new Patient()).addPatient(patient);
         Patient savedPatient = patientRepository.save(patientEntity);
         return patientMapper.toPatientDto(savedPatient);
     }
 
+    @Transactional
     public PatientDto updatePatient(Long id, PatientUpdateCommand patient) {
         Patient patientDb = getPatientDb(id);
         patientDb.updatePatient(patient);
@@ -55,10 +58,12 @@ public class PatientService {
         return patientMapper.toPatientDto(updatedPatient);
     }
 
+    @Transactional
     public void deletePatient(Long id) {
         patientRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public Set<VisitDto> findAllVisits(Long patientId) {
         Patient patient = getPatientDb(patientId);
         return patient.getVisits()

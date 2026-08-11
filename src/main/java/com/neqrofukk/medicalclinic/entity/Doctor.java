@@ -32,6 +32,9 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor")
     private Set<Visit> visits;
 
+    @Version
+    private Long version;
+
     public Doctor addDoctor(DoctorCreateCommand doctor) {
         User user = new User();
         user.setEmail(doctor.email());
