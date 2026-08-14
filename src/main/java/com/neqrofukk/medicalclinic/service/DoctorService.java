@@ -18,6 +18,7 @@ import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.specifications.DoctorSpecifications;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DoctorService {
@@ -59,6 +61,7 @@ public class DoctorService {
     public DoctorDto addDoctor(DoctorCreateCommand doctor) {
         Doctor doctorEntity = (new Doctor()).addDoctor(doctor);
         Doctor doctorDb = doctorRepository.save(doctorEntity);
+        log.info("Dodano doktora o id = {}", doctorDb.getId());
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
@@ -67,12 +70,14 @@ public class DoctorService {
         Doctor doctorDb = getDoctorDb(id);
         doctorDb.updateDoctor(doctor);
         doctorRepository.save(doctorDb);
+        log.info("Zaktualizowano doktora o id = {}", doctorDb.getId());
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
     @Transactional
     public void deleteDoctor(Long id) {
         doctorRepository.deleteById(id);
+        log.info("Usunięto doktora o id = {}", id);
     }
 
     @Transactional
@@ -80,6 +85,7 @@ public class DoctorService {
         Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
         clinicService.linkDoctorAndClinic(clinicDb, doctorDb);
+        log.info("Dodano doktora o id = {} do kliniki o id = {}", clinicId, doctorId);
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
@@ -88,6 +94,7 @@ public class DoctorService {
         Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
         clinicService.unlinkDoctorAndClinic(clinicDb, doctorDb);
+        log.info("Usunięto doktora o id = {} z kliniki o id = {}", clinicId, doctorId);
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 

@@ -8,11 +8,13 @@ import com.neqrofukk.medicalclinic.exceptions.visit.VisitNotQuarterHourException
 import com.neqrofukk.medicalclinic.exceptions.visit.VisitOverlapException;
 import com.neqrofukk.medicalclinic.util.DateUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class VisitValidator implements Validator<VisitValidityCheck> {

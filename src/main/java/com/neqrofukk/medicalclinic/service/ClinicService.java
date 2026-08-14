@@ -16,6 +16,7 @@ import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClinicService {
@@ -50,6 +52,7 @@ public class ClinicService {
     @Transactional
     public ClinicDto addClinic(ClinicCreateCommand clinic) {
         Clinic clinicDb = clinicRepository.save(clinicMapper.toEntity(clinic));
+        log.info("Dodano klinikę o id = {}", clinicDb.getId());
         return clinicMapper.toClinicDto(clinicDb);
     }
 
@@ -58,6 +61,7 @@ public class ClinicService {
         Clinic clinicDb = getClinicDb(id);
         clinicDb.updateClinic(clinic);
         clinicRepository.save(clinicDb);
+        log.info("Zaktualizowano klinikę o id = {}", clinicDb.getId());
         return clinicMapper.toClinicDto(clinicDb);
     }
 
@@ -67,6 +71,7 @@ public class ClinicService {
         if (!(clinic.getDoctors().isEmpty())) {
             throw new ClinicNotEmptyException(id);
         }
+        log.info("Usunięto klinikę o id = {}", id);
         clinicRepository.deleteById(id);
     }
 
@@ -75,15 +80,17 @@ public class ClinicService {
         Doctor doctor = getDoctorDb(doctorId);
         Clinic clinic = getClinicDb(clinicId);
         linkDoctorAndClinic(clinic, doctor);
+        log.info("Dodano doktora o id = {} do kliniki o id = {}", clinicId, doctorId);
         return clinicDetailsMapper.toClinicDetailsDto(clinic);
     }
 
     @Transactional
     public ClinicDetailsDto removeDoctorFromClinic(Long clinicId, Long doctorId) {
-        Clinic clinicDb = getClinicDb(clinicId);
-        Doctor doctorDb = getDoctorDb(doctorId);
-        unlinkDoctorAndClinic(clinicDb, doctorDb);
-        return clinicDetailsMapper.toClinicDetailsDto(clinicRepository.save(clinicDb));
+        Clinic clinic = getClinicDb(clinicId);
+        Doctor doctor = getDoctorDb(doctorId);
+        unlinkDoctorAndClinic(clinic, doctor);
+        log.info("Usunięto doktora o id = {} z kliniki o id = {}", clinicId, doctorId);
+        return clinicDetailsMapper.toClinicDetailsDto(clinicRepository.save(clinic));
     }
 
     @Transactional

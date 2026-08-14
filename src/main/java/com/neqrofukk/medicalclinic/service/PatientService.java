@@ -12,6 +12,7 @@ import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PatientService {
@@ -47,6 +49,7 @@ public class PatientService {
     public PatientDto addPatient(PatientCreateCommand patient) {
         Patient patientEntity = (new Patient()).addPatient(patient);
         Patient savedPatient = patientRepository.save(patientEntity);
+        log.info("Dodano pacjenta o id = {}", savedPatient.getId());
         return patientMapper.toPatientDto(savedPatient);
     }
 
@@ -55,12 +58,14 @@ public class PatientService {
         Patient patientDb = getPatientDb(id);
         patientDb.updatePatient(patient);
         Patient updatedPatient = patientRepository.save(patientDb);
+        log.info("Zaktualizowano pacjenta o id = {}", updatedPatient.getId());
         return patientMapper.toPatientDto(updatedPatient);
     }
 
     @Transactional
     public void deletePatient(Long id) {
         patientRepository.deleteById(id);
+        log.info("Usunięto klinikę o id = {}", id);
     }
 
     @Transactional(readOnly = true)

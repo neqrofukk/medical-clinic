@@ -10,6 +10,7 @@ import com.neqrofukk.medicalclinic.mapper.UserMapper;
 import com.neqrofukk.medicalclinic.repository.UserRepository;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -42,6 +44,7 @@ public class UserService {
     @Transactional
     public UserDto addUser(UserCreateCommand user) {
         User userDb = userRepository.save(userMapper.toEntity(user));
+        log.info("Dodano użytkownika o id = {}", userDb.getId());
         return userMapper.toUserDto(userDb);
     }
 
@@ -49,14 +52,15 @@ public class UserService {
     public UserDto updateUser(Long id, UserUpdateCommand user) {
         User userDb = getUserDb(id);
         userDb.updateUser(user);
-
         User updatedUser = userRepository.save(userDb);
+        log.info("Zaktualizowano użytkownika o id = {}", updatedUser.getId());
         return userMapper.toUserDto(updatedUser);
     }
 
     @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+        log.info("Usunięto użytkownika o id = {}", id);
     }
 
     @Transactional
@@ -64,6 +68,7 @@ public class UserService {
         User userDb = getUserDb(id);
         userDb.setPassword(newPassword);
         userRepository.save(userDb);
+        log.info("Hasło zostało zmienione");
     }
 
     private User getUserDb(Long id) {

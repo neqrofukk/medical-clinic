@@ -60,6 +60,7 @@ public class VisitService {
 
         Visit visitEntity = (new Visit()).addVisit(visit, doctorDb);
         Visit visitDb = visitRepository.save(visitEntity);
+
         return visitMapper.toVisitDto(visitDb);
     }
 
