@@ -23,7 +23,7 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NaturalId
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String idCardNo;
     private LocalDate birthDay;
     private String phoneNumber;
