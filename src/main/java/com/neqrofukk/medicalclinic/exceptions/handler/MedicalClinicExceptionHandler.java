@@ -15,7 +15,7 @@ public class MedicalClinicExceptionHandler {
 
     @ExceptionHandler(MedicalClinicException.class)
     public ResponseEntity<ErrorMessageDto> handleMedicalClinicException(MedicalClinicException exception) {
-        log.warn("Obsłużony błąd: {}", exception.getMessage());
+        log.error("Obsłużony błąd: {}", exception.getMessage());
         return ResponseEntity.status(exception.getStatus())
                 .body(new ErrorMessageDto(exception.getMessage(), exception.getStatus().value(), LocalDateTime.now()));
     }

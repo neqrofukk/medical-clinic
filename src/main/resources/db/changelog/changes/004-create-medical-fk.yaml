@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: neqro
+      changes:
+        - addColumn:
+            tableName: doctors
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+        - addColumn:
+            tableName: visits
+            columns:
+              - column:
+                  name: doctor_id
+                  type: bigint
+              - column:
+                  name: patient_id
+                  type: bigint
+  - changeSet:
+      id: 6
+      author: neqro
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: doctors
+            constraintName: fk_doctor_user
+            referencedColumnNames: id
+            referencedTableName: users
+        - addForeignKeyConstraint:
+            baseTableName: visits
+            baseColumnNames: doctor_id
+            constraintName: fk_visit_doctor
+            referencedTableName: doctors
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: visits
+            baseColumnNames: patient_id
+            constraintName: fk_visit_patient
+            referencedTableName: patients
+            referencedColumnNames: id
+  - changeSet:
+      id: 7
+      author: neqro
+      changes:
+        - createTable:
+            tableName: clinic_doctors
+            columns:
+              - column:
+                  name: clinic_id
+                  type: BIGINT
+              - column:
+                  name: doctor_id
+                  type: BIGINT
+  - changeSet:
+      id: 8
+      author: neqro
+      changes:
+        - addPrimaryKey:
+            tableName: clinic_doctors
+            columnNames: clinic_id, doctor_id
+            constraintName: pk_clinic_doctors
+        - addForeignKeyConstraint:
+            baseTableName: clinic_doctors
+            baseColumnNames: clinic_id
+            constraintName: fk_clinic_doctors_clinic
+            referencedTableName: clinics
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: clinic_doctors
+            baseColumnNames: doctor_id
+            constraintName: fk_clinic_doctors_doctor
+            referencedTableName: doctors
+            referencedColumnNames: id

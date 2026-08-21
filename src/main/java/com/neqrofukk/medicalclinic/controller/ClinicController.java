@@ -28,6 +28,7 @@ public class ClinicController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<ClinicDto> getClinics(@PageableDefault(sort = "lastName") Pageable pageable) {
+//        TODO Logować co przyszło w ogóle w requeście
         return clinicService.getClinics(pageable);
     }
 
