@@ -15,15 +15,15 @@ public class MedicalClinicExceptionHandler {
 
     @ExceptionHandler(MedicalClinicException.class)
     public ResponseEntity<ErrorMessageDto> handleMedicalClinicException(MedicalClinicException exception) {
-        log.error("Obsłużony błąd: {}", exception.getMessage());
+        log.error("Handled Medical Clinic Exception: status = {}, message = {}", exception.getStatus().value(), exception.getMessage());
         return ResponseEntity.status(exception.getStatus())
                 .body(new ErrorMessageDto(exception.getMessage(), exception.getStatus().value(), LocalDateTime.now()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessageDto> handleUnexpected(Exception exception) {
-        log.error("Wystąpił nieoczekiwany błąd", exception);
+        log.error("Unexpected error occurred: ", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorMessageDto("Wystąpił nieoczekiwany błąd", 500, LocalDateTime.now()));
+                .body(new ErrorMessageDto("Unexpected error occurred", 500, LocalDateTime.now()));
     }
 }

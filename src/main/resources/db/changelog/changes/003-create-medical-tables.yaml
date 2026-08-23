@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 4
+      id: 003-create-medical-tables
       author: neqro
       changes:
         - createTable:
@@ -20,6 +20,15 @@ databaseChangeLog:
               - column:
                   name: version
                   type: bigint
+              - column:
+                  name: user_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: doctors
+            constraintName: fk_doctor_user
+            referencedColumnNames: id
+            referencedTableName: users
         - createTable:
             tableName: visits
             columns:
@@ -40,6 +49,24 @@ databaseChangeLog:
               - column:
                   name: version
                   type: bigint
+              - column:
+                  name: doctor_id
+                  type: bigint
+              - column:
+                  name: patient_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseTableName: visits
+            baseColumnNames: doctor_id
+            constraintName: fk_visit_doctor
+            referencedTableName: doctors
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: visits
+            baseColumnNames: patient_id
+            constraintName: fk_visit_patient
+            referencedTableName: patients
+            referencedColumnNames: id
         - createTable:
             tableName: clinics
             columns:

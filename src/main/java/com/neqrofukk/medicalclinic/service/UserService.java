@@ -44,7 +44,7 @@ public class UserService {
     @Transactional
     public UserDto addUser(UserCreateCommand user) {
         User userDb = userRepository.save(userMapper.toEntity(user));
-        log.info("Dodano użytkownika o id = {}", userDb.getId());
+        log.info("Added user with id = {}", userDb.getId());
         return userMapper.toUserDto(userDb);
     }
 
@@ -53,14 +53,14 @@ public class UserService {
         User userDb = getUserDb(id);
         userDb.updateUser(user);
         User updatedUser = userRepository.save(userDb);
-        log.info("Zaktualizowano użytkownika o id = {}", updatedUser.getId());
+        log.info("Updated user with id = {}", updatedUser.getId());
         return userMapper.toUserDto(updatedUser);
     }
 
     @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-        log.info("Usunięto użytkownika o id = {}", id);
+        log.info("Removed user with id = {}", id);
     }
 
     @Transactional
@@ -68,7 +68,7 @@ public class UserService {
         User userDb = getUserDb(id);
         userDb.setPassword(newPassword);
         userRepository.save(userDb);
-        log.info("Hasło zostało zmienione");
+        log.info("Password has been changed");
     }
 
     private User getUserDb(Long id) {

@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 2
+      id: 002-create-users-table
       author: neqro
       changes:
         - createTable:
@@ -14,7 +14,7 @@ databaseChangeLog:
                     primaryKey: true
               - column:
                   name: email
-                  type: VARCHAR(255)
+                  type: varchar(255)
                   constraints:
                     unique: true
                     nullable: false
@@ -36,10 +36,6 @@ databaseChangeLog:
               - column:
                   name: version
                   type: bigint
-  - changeSet:
-      id: 3
-      author: neqro
-      changes:
         - addColumn:
             tableName: patients
             columns:

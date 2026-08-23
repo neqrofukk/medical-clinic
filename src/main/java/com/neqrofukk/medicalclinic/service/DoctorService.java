@@ -61,7 +61,7 @@ public class DoctorService {
     public DoctorDto addDoctor(DoctorCreateCommand doctor) {
         Doctor doctorEntity = (new Doctor()).addDoctor(doctor);
         Doctor doctorDb = doctorRepository.save(doctorEntity);
-        log.info("Dodano doktora o id = {}", doctorDb.getId());
+        log.info("Added doctor with id = {}", doctorDb.getId());
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
@@ -70,14 +70,14 @@ public class DoctorService {
         Doctor doctorDb = getDoctorDb(id);
         doctorDb.updateDoctor(doctor);
         doctorRepository.save(doctorDb);
-        log.info("Zaktualizowano doktora o id = {}", doctorDb.getId());
+        log.info("Updated doctor with id = {}", doctorDb.getId());
         return doctorMapper.toDoctorDto(doctorDb);
     }
 
     @Transactional
     public void deleteDoctor(Long id) {
         doctorRepository.deleteById(id);
-        log.info("Usunięto doktora o id = {}", id);
+        log.info("Removed doctor with id = {}", id);
     }
 
     @Transactional
@@ -85,7 +85,7 @@ public class DoctorService {
         Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
         clinicService.linkDoctorAndClinic(clinicDb, doctorDb);
-        log.info("Dodano doktora o id = {} do kliniki o id = {}", clinicId, doctorId);
+        log.info("Added doctor with id = {} to clinic with id = {}", clinicId, doctorId);
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 
@@ -94,7 +94,7 @@ public class DoctorService {
         Doctor doctorDb = getDoctorDb(doctorId);
         Clinic clinicDb = getClinicDb(clinicId);
         clinicService.unlinkDoctorAndClinic(clinicDb, doctorDb);
-        log.info("Usunięto doktora o id = {} z kliniki o id = {}", clinicId, doctorId);
+        log.info("Removed a doctor with id = {} from clinic with id = {}", clinicId, doctorId);
         return doctorDetailsMapper.toDoctorDetailsDto(doctorDb);
     }
 

@@ -49,7 +49,7 @@ public class PatientService {
     public PatientDto addPatient(PatientCreateCommand patient) {
         Patient patientEntity = (new Patient()).addPatient(patient);
         Patient savedPatient = patientRepository.save(patientEntity);
-        log.info("Dodano pacjenta o id = {}", savedPatient.getId());
+        log.info("Added patient with id = {}", savedPatient.getId());
         return patientMapper.toPatientDto(savedPatient);
     }
 
@@ -58,14 +58,14 @@ public class PatientService {
         Patient patientDb = getPatientDb(id);
         patientDb.updatePatient(patient);
         Patient updatedPatient = patientRepository.save(patientDb);
-        log.info("Zaktualizowano pacjenta o id = {}", updatedPatient.getId());
+        log.info("Updated patient with id = {}", updatedPatient.getId());
         return patientMapper.toPatientDto(updatedPatient);
     }
 
     @Transactional
     public void deletePatient(Long id) {
         patientRepository.deleteById(id);
-        log.info("Usunięto klinikę o id = {}", id);
+        log.info("Removed clinic with id = {}", id);
     }
 
     @Transactional(readOnly = true)
