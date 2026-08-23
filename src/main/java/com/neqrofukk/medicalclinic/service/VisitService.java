@@ -45,11 +45,13 @@ public class VisitService {
         return PageResponse.from(page.map(visitMapper::toVisitDto));
     }
 
+    @Transactional(readOnly = true)
     public VisitDto findById(Long id) {
         Visit visitDb = getVisitDb(id);
         return visitMapper.toVisitDto(visitDb);
     }
 
+    @Transactional
     public VisitDto addVisit(VisitCreateCommand visit) {
         Doctor doctorDb = getDoctorDb(visit.doctorId());
 
@@ -58,6 +60,7 @@ public class VisitService {
 
         Visit visitEntity = (new Visit()).addVisit(visit, doctorDb);
         Visit visitDb = visitRepository.save(visitEntity);
+
         return visitMapper.toVisitDto(visitDb);
     }
 
@@ -74,10 +77,12 @@ public class VisitService {
         return visitMapper.toVisitDto(visitDb);
     }
 
+    @Transactional
     public void deleteVisit(Long id) {
         visitRepository.deleteById(id);
     }
 
+    @Transactional
     public VisitDto addPatientToVisit(Long visitId, Long patientId) {
         Visit visit = getVisitDb(visitId);
         Patient patientDb = getPatientDb(patientId);
@@ -92,6 +97,7 @@ public class VisitService {
         return visitMapper.toVisitDto(visitRepository.save(visit));
     }
 
+    @Transactional
     public VisitDto removePatientFromVisit(Long visitId) {
         Visit visit = getVisitDb(visitId);
         visit.setPatient(null);

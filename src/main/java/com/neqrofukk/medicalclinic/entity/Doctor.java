@@ -20,6 +20,7 @@ public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String specialty;
 
     @ManyToMany(mappedBy = "doctors")
@@ -31,6 +32,9 @@ public class Doctor {
 
     @OneToMany(mappedBy = "doctor")
     private Set<Visit> visits;
+
+    @Version
+    private Long version;
 
     public Doctor addDoctor(DoctorCreateCommand doctor) {
         User user = new User();
@@ -51,5 +55,19 @@ public class Doctor {
         Utils.setIfPresent(doctor.email(), user::setEmail);
         Utils.setIfPresent(doctor.firstName(), user::setFirstName);
         Utils.setIfPresent(doctor.lastName(), user::setLastName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Doctor))
+            return false;
+        Doctor other = (Doctor) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

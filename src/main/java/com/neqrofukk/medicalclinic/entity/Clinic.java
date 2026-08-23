@@ -20,7 +20,7 @@ public class Clinic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
     private String city;
     private String zipCode;
@@ -33,6 +33,9 @@ public class Clinic {
             joinColumns = @JoinColumn(name = "clinic_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id"))
     private Set<Doctor> doctors = new HashSet<>();
+
+    @Version
+    private Long version;
 
     public void updateClinic(ClinicUpdateCommand clinic) {
         Utils.setIfPresent(clinic.name(), this::setName);
@@ -50,5 +53,19 @@ public class Clinic {
     public void removeDoctor(Doctor doctor) {
         doctors.remove(doctor);
         doctor.getClinics().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Clinic))
+            return false;
+        Clinic other = (Clinic) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -16,10 +16,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
     private String firstName;
+    @Column(nullable = false)
     private String lastName;
 
     @OneToOne(mappedBy = "user")
@@ -28,10 +31,27 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Doctor doctor;
 
+    @Version
+    private Long version;
+
     public void updateUser(UserUpdateCommand user) {
         Utils.setIfPresent(user.email(), this::setEmail);
         Utils.setIfPresent(user.password(), this::setPassword);
         Utils.setIfPresent(user.firstName(), this::setFirstName);
         Utils.setIfPresent(user.lastName(), this::setLastName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User))
+            return false;
+        User other = (User) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

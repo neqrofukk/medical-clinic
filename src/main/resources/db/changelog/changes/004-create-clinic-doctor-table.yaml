@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-clinic-doctor-columns
+      author: neqro
+      changes:
+        - createTable:
+            tableName: clinic_doctors
+            columns:
+              - column:
+                  name: clinic_id
+                  type: BIGINT
+              - column:
+                  name: doctor_id
+                  type: BIGINT
+  - changeSet:
+      id: 005-add-clinic-doctor-fk
+      author: neqro
+      changes:
+        - addPrimaryKey:
+            tableName: clinic_doctors
+            columnNames: clinic_id, doctor_id
+            constraintName: pk_clinic_doctors
+        - addForeignKeyConstraint:
+            baseTableName: clinic_doctors
+            baseColumnNames: clinic_id
+            constraintName: fk_clinic_doctors_clinic
+            referencedTableName: clinics
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: clinic_doctors
+            baseColumnNames: doctor_id
+            constraintName: fk_clinic_doctors_doctor
+            referencedTableName: doctors
+            referencedColumnNames: id

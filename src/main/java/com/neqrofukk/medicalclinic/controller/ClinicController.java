@@ -11,11 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Tag(name = "clinics", description = "Operations for managing clinics")
 @RequestMapping("/clinics")
 @RestController
@@ -28,6 +30,7 @@ public class ClinicController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<ClinicDto> getClinics(@PageableDefault(sort = "lastName") Pageable pageable) {
+        log.info("GET /clinics - page = {}, size = {}, sort = {}", pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
         return clinicService.getClinics(pageable);
     }
 
@@ -40,6 +43,7 @@ public class ClinicController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ClinicDetailsDto findById(@PathVariable Long id) {
+        log.info("GET /clinics/{}", id);
         return clinicService.findById(id);
     }
 
@@ -51,6 +55,7 @@ public class ClinicController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ClinicDto create(@RequestBody ClinicCreateCommand createDto) {
+        log.info("POST /clinics - body: {}", createDto);
         return clinicService.addClinic(createDto);
     }
 
@@ -63,6 +68,7 @@ public class ClinicController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ClinicDto update(@PathVariable Long id, @RequestBody ClinicUpdateCommand createDto) {
+        log.info("PUT /clinics/{} - body: {}", id, createDto);
         return clinicService.updateClinic(id, createDto);
     }
 
@@ -75,6 +81,7 @@ public class ClinicController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
+        log.info("DELETE /clinics/{}", id);
         clinicService.deleteClinic(id);
     }
 
@@ -87,6 +94,7 @@ public class ClinicController {
     @PutMapping("{clinicId}/doctors/{doctorId}")
     @ResponseStatus(HttpStatus.OK)
     public ClinicDetailsDto addDoctorToClinic(@PathVariable Long clinicId, @PathVariable Long doctorId) {
+        log.info("PUT /clinics/{}/doctors/{}", clinicId, doctorId);
         return clinicService.addDoctorToClinic(clinicId, doctorId);
     }
 
@@ -99,6 +107,7 @@ public class ClinicController {
     @DeleteMapping("{clinicId}/doctors/{doctorId}")
     @ResponseStatus(HttpStatus.OK)
     public ClinicDetailsDto removeDoctorFromClinic(@PathVariable Long clinicId, @PathVariable Long doctorId) {
+        log.info("DELETE /clinics/{}/doctors/{}", clinicId, doctorId);
         return clinicService.removeDoctorFromClinic(clinicId, doctorId);
     }
 }

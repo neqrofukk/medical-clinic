@@ -12,6 +12,7 @@ import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PatientService {
@@ -37,28 +39,36 @@ public class PatientService {
         return PageResponse.from(page.map(patientMapper::toPatientDto));
     }
 
+    @Transactional(readOnly = true)
     public PatientDto findById(Long id) {
         Patient patientDb = getPatientDb(id);
         return patientMapper.toPatientDto(patientDb);
     }
 
+    @Transactional
     public PatientDto addPatient(PatientCreateCommand patient) {
         Patient patientEntity = (new Patient()).addPatient(patient);
         Patient savedPatient = patientRepository.save(patientEntity);
+        log.info("Added patient with id = {}", savedPatient.getId());
         return patientMapper.toPatientDto(savedPatient);
     }
 
+    @Transactional
     public PatientDto updatePatient(Long id, PatientUpdateCommand patient) {
         Patient patientDb = getPatientDb(id);
         patientDb.updatePatient(patient);
         Patient updatedPatient = patientRepository.save(patientDb);
+        log.info("Updated patient with id = {}", updatedPatient.getId());
         return patientMapper.toPatientDto(updatedPatient);
     }
 
+    @Transactional
     public void deletePatient(Long id) {
         patientRepository.deleteById(id);
+        log.info("Removed clinic with id = {}", id);
     }
 
+    @Transactional(readOnly = true)
     public Set<VisitDto> findAllVisits(Long patientId) {
         Patient patient = getPatientDb(patientId);
         return patient.getVisits()

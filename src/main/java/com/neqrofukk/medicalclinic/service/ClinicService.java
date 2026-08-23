@@ -16,6 +16,7 @@ import com.neqrofukk.medicalclinic.repository.ClinicRepository;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClinicService {
@@ -41,50 +43,63 @@ public class ClinicService {
         return PageResponse.from(page.map(clinicMapper::toClinicDto));
     }
 
+    @Transactional(readOnly = true)
     public ClinicDetailsDto findById(Long id) {
         Clinic clinicDb = getClinicDb(id);
         return clinicDetailsMapper.toClinicDetailsDto(clinicDb);
     }
 
+    @Transactional
     public ClinicDto addClinic(ClinicCreateCommand clinic) {
         Clinic clinicDb = clinicRepository.save(clinicMapper.toEntity(clinic));
+        log.info("Added clinic with id = {}", clinicDb.getId());
         return clinicMapper.toClinicDto(clinicDb);
     }
 
+    @Transactional
     public ClinicDto updateClinic(Long id, ClinicUpdateCommand clinic) {
         Clinic clinicDb = getClinicDb(id);
         clinicDb.updateClinic(clinic);
         clinicRepository.save(clinicDb);
+        log.info("Updated clinic with id = {}", clinicDb.getId());
         return clinicMapper.toClinicDto(clinicDb);
     }
 
+    @Transactional
     public void deleteClinic(Long id) {
         Clinic clinic = getClinicDb(id);
         if (!(clinic.getDoctors().isEmpty())) {
             throw new ClinicNotEmptyException(id);
         }
+        log.info("Removed clinic with id = {}", id);
         clinicRepository.deleteById(id);
     }
 
+    @Transactional
     public ClinicDetailsDto addDoctorToClinic(Long clinicId, Long doctorId) {
         Doctor doctor = getDoctorDb(doctorId);
         Clinic clinic = getClinicDb(clinicId);
         linkDoctorAndClinic(clinic, doctor);
+        log.info("Added doctor with id = {} to clinic with id = {}", clinicId, doctorId);
         return clinicDetailsMapper.toClinicDetailsDto(clinic);
     }
 
+    @Transactional
     public ClinicDetailsDto removeDoctorFromClinic(Long clinicId, Long doctorId) {
-        Clinic clinicDb = getClinicDb(clinicId);
-        Doctor doctorDb = getDoctorDb(doctorId);
-        unlinkDoctorAndClinic(clinicDb, doctorDb);
-        return clinicDetailsMapper.toClinicDetailsDto(clinicRepository.save(clinicDb));
+        Clinic clinic = getClinicDb(clinicId);
+        Doctor doctor = getDoctorDb(doctorId);
+        unlinkDoctorAndClinic(clinic, doctor);
+        log.info("Removed doctor with id = {} from clinic with id = {}", clinicId, doctorId);
+        return clinicDetailsMapper.toClinicDetailsDto(clinicRepository.save(clinic));
     }
 
+    @Transactional
     public void linkDoctorAndClinic(Clinic clinic, Doctor doctor) {
         clinic.addDoctor(doctor);
         clinicRepository.save(clinic);
     }
 
+    @Transactional
     public void unlinkDoctorAndClinic(Clinic clinic, Doctor doctor) {
         clinic.removeDoctor(doctor);
         clinicRepository.save(clinic);
