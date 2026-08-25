@@ -10,5 +10,9 @@ import org.mapstruct.Mapping;
 public interface PatientMapper {
     @Mapping(target = "id", ignore = true)
     Patient toEntity(PatientCreateCommand patient);
+
+    @Mapping(source = "user.email", target = "email")
+    @Mapping(source = "user.firstName", target = "firstName")
+    @Mapping(source = "user.lastName", target = "lastName")
     PatientDto toPatientDto(Patient patient);
 }
