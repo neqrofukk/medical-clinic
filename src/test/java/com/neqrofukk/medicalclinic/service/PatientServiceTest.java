@@ -32,7 +32,6 @@ class PatientServiceTest {
     PatientMapper patientMapper;
     VisitMapper visitMapper;
 
-
     @BeforeEach
     void setup() {
         this.patientRepository = Mockito.mock(PatientRepository.class);
