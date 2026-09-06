@@ -4,7 +4,9 @@ import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
+import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.entity.Patient;
+import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.mapper.PatientMapper;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
@@ -16,9 +18,8 @@ import org.mockito.Mockito;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -101,25 +102,55 @@ class PatientServiceTest {
     }
 
     @Test
-    void updatePatient() {
+    void updatePatient_PatientExists_PatientUpdatedAndReturned() {
         // given
-        PatientUpdateCommand patientUpdateCommand = new PatientUpdateCommand("buziaczek67@serduszko.com", "123456", "Jan", "Kowalski", LocalDate.parse("2000-01-01"), "600900600");
+        PatientUpdateCommand patientUpdateCommand = new PatientUpdateCommand("buziaczek69@serduszko.com", "987654", "Janek", "Nowak", LocalDate.parse("2010-02-02"), "700900500");
+        Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", null, null, null);
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
         // when
+
+        PatientDto result = patientService.updatePatient(1L, patientUpdateCommand);
         // then
+        Assertions.assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals("987654", result.idCardNo())
+        );
+        verify(patientRepository).findById(1L);
 
     }
 
     @Test
-    void deletePatient() {
+    void deletePatient_PatientDeleteInvoked_PatientDeleted() {
         // given
         // when
+        patientRepository.deleteById(1L);
         // then
+        verify(patientRepository).deleteById(1L);
     }
 
     @Test
     void findAllVisits() {
         // given
+        Set<Visit> visits = new HashSet<>();
+        Visit visit1 = new Visit(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), null, null, null);
+        Visit visit2 = new Visit(2L, LocalDateTime.parse("2010-02-02T12:30:00"), LocalDateTime.parse("2010-02-02T13:00:00"), null, null, null);
+        visits.add(visit1);
+        visits.add(visit2);
+        Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", null, visits, null);
+        Set<VisitDto> expected = Set.of(
+                visitMapper.toVisitDto(visit1),
+                visitMapper.toVisitDto(visit2)
+        );
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
+
         // when
+        Set<VisitDto> result = patientService.findAllVisits(1L);
+
         // then
+        Assertions.assertAll(
+                () -> assertEquals(expected, result)
+        );
+        verify(patientRepository).findById(1L);
     }
+
 }
