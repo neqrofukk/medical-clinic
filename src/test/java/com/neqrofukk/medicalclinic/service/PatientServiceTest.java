@@ -6,7 +6,10 @@ import com.neqrofukk.medicalclinic.dto.Patient.PatientDto;
 import com.neqrofukk.medicalclinic.dto.Patient.PatientUpdateCommand;
 import com.neqrofukk.medicalclinic.dto.Visit.VisitDto;
 import com.neqrofukk.medicalclinic.entity.Patient;
+import com.neqrofukk.medicalclinic.entity.User;
 import com.neqrofukk.medicalclinic.entity.Visit;
+import com.neqrofukk.medicalclinic.exceptions.InvalidSortPropertyException;
+import com.neqrofukk.medicalclinic.exceptions.PatientNotFoundException;
 import com.neqrofukk.medicalclinic.mapper.PatientMapper;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
@@ -21,10 +24,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class PatientServiceTest {
 
@@ -43,114 +45,183 @@ class PatientServiceTest {
 
     @Test
     void getPatients_PatientsExist_PatientsReturned() {
-        // given
-        List<Patient> patients = new ArrayList<>();
-        patients.add(new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", null, null, null));
-        patients.add(new Patient(2L, "987654", LocalDate.parse("2010-02-02"), "700900500", null, null, null));
+        User user1 = new User(10L, "buziaczek67@serduszko.com", "trudneHaslo2137", "Jan", "Kowalski", null, null, null);
+        User user2 = new User(20L, "buziaczek69@serduszko.com", "trudneHaslo6767", "Janek", "Nowak", null, null, null);
+        Patient patient1 = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", user1, new HashSet<>(), null);
+        Patient patient2 = new Patient(2L, "987654", LocalDate.parse("2010-02-02"), "700900500", user2, new HashSet<>(), null);
+        List<Patient> patients = List.of(patient1, patient2);
         Pageable pageable = PageRequest.of(0, 20, Sort.by("lastName"));
         Page<Patient> page = new PageImpl<>(patients, pageable, 2);
         when(patientRepository.findAll(pageable)).thenReturn(page);
 
-        // when
         PageResponse<PatientDto> pageResponse = patientService.getPatients(pageable);
         List<PatientDto> result = pageResponse.content();
+        PatientDto dto1 = result.get(0);
+        PatientDto dto2 = result.get(1);
 
-        // then
         Assertions.assertAll(
                 () -> assertEquals(2, result.size()),
-                () -> assertEquals(1L, result.get(0).id()),
-                () -> assertEquals(2L, result.get(1).id())
+                () -> assertEquals(0, pageResponse.page()),
+                () -> assertEquals(20, pageResponse.size()),
+                () -> assertEquals(2, pageResponse.totalElements()),
+                () -> assertEquals(1L, dto1.id()),
+                () -> assertEquals("buziaczek67@serduszko.com", dto1.email()),
+                () -> assertEquals("123456", dto1.idCardNo()),
+                () -> assertEquals("Jan", dto1.firstName()),
+                () -> assertEquals("Kowalski", dto1.lastName()),
+                () -> assertEquals(LocalDate.parse("2000-01-01"), dto1.birthDay()),
+                () -> assertEquals("600900600", dto1.phoneNumber()),
+                () -> assertEquals(2L, dto2.id()),
+                () -> assertEquals("buziaczek69@serduszko.com", dto2.email()),
+                () -> assertEquals("987654", dto2.idCardNo()),
+                () -> assertEquals("Janek", dto2.firstName()),
+                () -> assertEquals("Nowak", dto2.lastName()),
+                () -> assertEquals(LocalDate.parse("2010-02-02"), dto2.birthDay()),
+                () -> assertEquals("700900500", dto2.phoneNumber())
         );
         verify(patientRepository).findAll(pageable);
     }
 
     @Test
-    void findById_PatientExists_PatientReturned() {
-        // given
-        Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", null, null, null);
+    void getPatients_InvalidSortProperty_ThrowsException() {
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("password"));
 
+        InvalidSortPropertyException ex = assertThrows(InvalidSortPropertyException.class, () -> patientService.getPatients(pageable));
+        assertTrue(ex.getMessage().contains("password"));
+        verifyNoInteractions(patientRepository);
+    }
+
+    @Test
+    void findById_PatientExists_PatientReturned() {
+        User user = new User(2L, "buziaczek67@serduszko.com", "trudneHaslo2137", "Jan", "Kowalski", null, null, null);
+        Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", user, new HashSet<>(), null);
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
-        // when
+
         PatientDto result = patientService.findById(1L);
 
-        // then
         Assertions.assertAll(
                 () -> assertNotNull(result),
-                () -> assertEquals(1L, result.id())
+                () -> assertEquals(1L, result.id()),
+                () -> assertEquals("buziaczek67@serduszko.com", result.email()),
+                () -> assertEquals("123456", result.idCardNo()),
+                () -> assertEquals("Jan", result.firstName()),
+                () -> assertEquals("Kowalski", result.lastName()),
+                () -> assertEquals(LocalDate.parse("2000-01-01"), result.birthDay()),
+                () -> assertEquals("600900600", result.phoneNumber())
         );
         verify(patientRepository).findById(1L);
     }
 
     @Test
+    void findById_PatientNotFound_ThrowsException() {
+        when(patientRepository.findById(99L)).thenReturn(Optional.empty());
+
+        PatientNotFoundException ex = assertThrows(PatientNotFoundException.class, () -> patientService.findById(99L));
+        assertEquals("Patient with id 99 not found", ex.getMessage());
+    }
+
+    @Test
     void addPatient_PatientCreated_PatientReturned() {
-        // given
-        PatientCreateCommand patientCreateCommand = new PatientCreateCommand("buziaczek67@serduszko.com", "trudneHaslo2137", "123456", "Jan", "Kowalski", LocalDate.parse("2000-01-01"), "600900600");
-        Patient patient = (new Patient()).addPatient(patientCreateCommand);
+        // Patient.equals() compares by idCardNo (not id, unlike Clinic/Doctor/User), and
+        // (new Patient()).addPatient(command) here mirrors exactly what the service builds,
+        // so this stub-by-instance actually matches - kept as-is.
+        PatientCreateCommand command = new PatientCreateCommand("buziaczek67@serduszko.com", "trudneHaslo2137", "123456", "Jan", "Kowalski", LocalDate.parse("2000-01-01"), "600900600");
+        Patient patient = (new Patient()).addPatient(command);
         patient.setId(1L);
         when(patientRepository.save(patient)).thenReturn(patient);
 
-        // when
-        PatientDto result = patientService.addPatient(patientCreateCommand);
+        PatientDto result = patientService.addPatient(command);
 
-        // then
         Assertions.assertAll(
                 () -> assertNotNull(result),
+                () -> assertEquals(1L, result.id()),
                 () -> assertEquals("buziaczek67@serduszko.com", result.email()),
-                () -> assertEquals("123456", result.idCardNo())
+                () -> assertEquals("123456", result.idCardNo()),
+                () -> assertEquals("Jan", result.firstName()),
+                () -> assertEquals("Kowalski", result.lastName()),
+                () -> assertEquals(LocalDate.parse("2000-01-01"), result.birthDay()),
+                () -> assertEquals("600900600", result.phoneNumber())
         );
         verify(patientRepository).save(patient);
     }
 
     @Test
     void updatePatient_PatientExists_PatientUpdatedAndReturned() {
-        // given
-        PatientUpdateCommand patientUpdateCommand = new PatientUpdateCommand("buziaczek69@serduszko.com", "987654", "Janek", "Nowak", LocalDate.parse("2010-02-02"), "700900500");
-        Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", null, null, null);
+        // Two bugs stacked here originally:
+        // 1) PatientService.updatePatient() reads .getId() off the *return value* of
+        //    patientRepository.save(...), never stubbed in the original test -> NPE.
+        // 2) Patient.updatePatient() unconditionally does user::setEmail etc. (a bound method
+        //    reference on this.user) - if user is null that throws NPE the moment the method
+        //    reference is built. A real, persisted Patient always has a User, so the fix is
+        //    giving the test entity one, not guarding the production code.
+        PatientUpdateCommand command = new PatientUpdateCommand("buziaczek69@serduszko.com", "987654", "Janek", "Nowak", LocalDate.parse("2010-02-02"), "700900500");
+        User user = new User(2L, "buziaczek67@serduszko.com", "trudneHaslo2137", "Jan", "Kowalski", null, null, null);
+        Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", user, new HashSet<>(), null);
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
-        // when
+        when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        PatientDto result = patientService.updatePatient(1L, patientUpdateCommand);
-        // then
+        PatientDto result = patientService.updatePatient(1L, command);
+
         Assertions.assertAll(
                 () -> assertNotNull(result),
-                () -> assertEquals("987654", result.idCardNo())
+                () -> assertEquals(1L, result.id()),
+                () -> assertEquals("buziaczek69@serduszko.com", result.email()),
+                () -> assertEquals("987654", result.idCardNo()),
+                () -> assertEquals("Janek", result.firstName()),
+                () -> assertEquals("Nowak", result.lastName()),
+                () -> assertEquals(LocalDate.parse("2010-02-02"), result.birthDay()),
+                () -> assertEquals("700900500", result.phoneNumber())
         );
         verify(patientRepository).findById(1L);
-
+        verify(patientRepository).save(patient);
     }
 
     @Test
-    void deletePatient_PatientDeleteInvoked_PatientDeleted() {
-        // given
-        // when
-        patientRepository.deleteById(1L);
-        // then
+    void updatePatient_PatientNotFound_ThrowsException() {
+        PatientUpdateCommand command = new PatientUpdateCommand("buziaczek69@serduszko.com", "987654", "Janek", "Nowak", LocalDate.parse("2010-02-02"), "700900500");
+        when(patientRepository.findById(1L)).thenReturn(Optional.empty());
+
+        PatientNotFoundException ex = assertThrows(PatientNotFoundException.class, () -> patientService.updatePatient(1L, command));
+        assertEquals("Patient with id 1 not found", ex.getMessage());
+        verify(patientRepository, never()).save(any());
+    }
+
+    @Test
+    void deletePatient_PatientExists_PatientDeleted() {
+        patientService.deletePatient(1L);
+
         verify(patientRepository).deleteById(1L);
     }
 
     @Test
-    void findAllVisits() {
-        // given
+    void findAllVisits_VisitsExist_VisitsReturned() {
         Set<Visit> visits = new HashSet<>();
         Visit visit1 = new Visit(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), null, null, null);
         Visit visit2 = new Visit(2L, LocalDateTime.parse("2010-02-02T12:30:00"), LocalDateTime.parse("2010-02-02T13:00:00"), null, null, null);
         visits.add(visit1);
         visits.add(visit2);
         Patient patient = new Patient(1L, "123456", LocalDate.parse("2000-01-01"), "600900600", null, visits, null);
-        Set<VisitDto> expected = Set.of(
-                visitMapper.toVisitDto(visit1),
-                visitMapper.toVisitDto(visit2)
-        );
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
 
-        // when
         Set<VisitDto> result = patientService.findAllVisits(1L);
+        Map<Long, VisitDto> byId = new HashMap<>();
+        result.forEach(dto -> byId.put(dto.id(), dto));
 
-        // then
         Assertions.assertAll(
-                () -> assertEquals(expected, result)
+                () -> assertEquals(2, result.size()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:00:00"), byId.get(1L).startTime()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), byId.get(1L).endTime()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), byId.get(2L).startTime()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T13:00:00"), byId.get(2L).endTime())
         );
         verify(patientRepository).findById(1L);
     }
 
+    @Test
+    void findAllVisits_PatientNotFound_ThrowsException() {
+        when(patientRepository.findById(1L)).thenReturn(Optional.empty());
+
+        PatientNotFoundException ex = assertThrows(PatientNotFoundException.class, () -> patientService.findAllVisits(1L));
+        assertEquals("Patient with id 1 not found", ex.getMessage());
+    }
 }
