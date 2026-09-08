@@ -26,7 +26,7 @@ public class VisitController {
     @ApiResponse(responseCode = "200", description = "Returned visits")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<VisitDto> getVisits(@PageableDefault(sort = "startDate") Pageable pageable) {
+    public PageResponse<VisitDto> getVisits(@PageableDefault(sort = "startTime") Pageable pageable) {
         return visitService.getVisits(pageable);
     }
 

@@ -90,7 +90,7 @@ public class ClinicService {
         Doctor doctor = getDoctorDb(doctorId);
         unlinkDoctorAndClinic(clinic, doctor);
         log.info("Removed doctor with id = {} from clinic with id = {}", clinicId, doctorId);
-        return clinicDetailsMapper.toClinicDetailsDto(clinicRepository.save(clinic));
+        return clinicDetailsMapper.toClinicDetailsDto(clinic);
     }
 
     @Transactional
