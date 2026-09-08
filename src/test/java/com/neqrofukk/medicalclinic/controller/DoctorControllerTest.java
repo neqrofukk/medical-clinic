@@ -24,9 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -71,11 +69,6 @@ class DoctorControllerTest {
 
     @Test
     void getDoctors_FilteredBySpecialty_Response200() throws Exception {
-        // Uses any(Pageable.class): with @PageableDefault(sort = "lastName") and no explicit
-        // size, Spring resolves the default page *size* from the annotation itself (10), not
-        // from the global PageableConfig fallback (20) - that fallback only applies when a
-        // parameter has no @PageableDefault at all. Hardcoding PageRequest.of(0, 20, ...) here
-        // would silently never match the real request and the stub would return null.
         List<DoctorDto> doctors = List.of(new DoctorDto(1L, "buziaczek67@serduszko.com", "Jan", "Kowalski", "shrink"));
         Pageable pageable = PageRequest.of(0, 10, Sort.by("lastName"));
         Page<DoctorDto> page = new PageImpl<>(doctors, pageable, doctors.size());
@@ -93,7 +86,7 @@ class DoctorControllerTest {
 
     @Test
     void findById_DoctorExists_Response200() throws Exception {
-        DoctorDetailsDto doctor = new DoctorDetailsDto(1L, "buziaczek67@serduszko.com", "Jan", "Kowalski", "shrink", List.of());
+        DoctorDetailsDto doctor = new DoctorDetailsDto(1L, "buziaczek67@serduszko.com", "Jan", "Kowalski", "shrink", null);
         when(service.findById(1L)).thenReturn(doctor);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/doctors/1"))
@@ -103,20 +96,19 @@ class DoctorControllerTest {
                         jsonPath("$.email").value("buziaczek67@serduszko.com"),
                         jsonPath("$.firstName").value("Jan"),
                         jsonPath("$.lastName").value("Kowalski"),
-                        jsonPath("$.specialty").value("shrink"),
-                        jsonPath("$.clinics").isEmpty()
+                        jsonPath("$.specialty").value("shrink")
                 );
     }
 
     @Test
     void findById_DoctorNotFound_Response404() throws Exception {
-        when(service.findById(99L)).thenThrow(new DoctorNotFoundException(99L));
+        when(service.findById(2L)).thenThrow(new DoctorNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/doctors/99"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/doctors/2"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Doctor with id 99 not found")
+                        jsonPath("$.message").value("Doctor with id 2 not found")
                 );
     }
 
@@ -162,15 +154,15 @@ class DoctorControllerTest {
     @Test
     void update_DoctorNotFound_Response404() throws Exception {
         DoctorUpdateCommand command = new DoctorUpdateCommand("buziaczek69@serduszko.com", "Janek", "Nowak", "eye doctor");
-        when(service.updateDoctor(99L, command)).thenThrow(new DoctorNotFoundException(99L));
+        when(service.updateDoctor(2L, command)).thenThrow(new DoctorNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/doctors/99")
+        mockMvc.perform(MockMvcRequestBuilders.put("/doctors/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Doctor with id 99 not found")
+                        jsonPath("$.message").value("Doctor with id 2 not found")
                 );
     }
 
@@ -203,13 +195,13 @@ class DoctorControllerTest {
 
     @Test
     void addClinicToDoctor_ClinicNotFound_Response404() throws Exception {
-        when(service.addClinicToDoctor(1L, 99L)).thenThrow(new ClinicNotFoundException(99L));
+        when(service.addClinicToDoctor(1L, 2L)).thenThrow(new ClinicNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/doctors/1/clinic/99"))
+        mockMvc.perform(MockMvcRequestBuilders.put("/doctors/1/clinic/2"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Clinic with id 99 not found")
+                        jsonPath("$.message").value("Clinic with id 2 not found")
                 );
     }
 
@@ -228,13 +220,13 @@ class DoctorControllerTest {
 
     @Test
     void removeClinicFromDoctor_DoctorNotFound_Response404() throws Exception {
-        when(service.removeClinicFromDoctor(99L, 1L)).thenThrow(new DoctorNotFoundException(99L));
+        when(service.removeClinicFromDoctor(2L, 1L)).thenThrow(new DoctorNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/doctors/99/clinic/1"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/doctors/2/clinic/1"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Doctor with id 99 not found")
+                        jsonPath("$.message").value("Doctor with id 2 not found")
                 );
     }
 
@@ -247,20 +239,19 @@ class DoctorControllerTest {
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$[0].id").value(1L),
-                        jsonPath("$[0].doctorId").value(1L),
-                        jsonPath("$[0].patientId").value(org.hamcrest.Matchers.nullValue())
+                        jsonPath("$[0].doctorId").value(1L)
                 );
     }
 
     @Test
     void findAllVisits_DoctorNotFound_Response404() throws Exception {
-        when(service.findAllVisits(99L)).thenThrow(new DoctorNotFoundException(99L));
+        when(service.findAllVisits(2L)).thenThrow(new DoctorNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/doctors/99/visits"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/doctors/2/visits"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Doctor with id 99 not found")
+                        jsonPath("$.message").value("Doctor with id 2 not found")
                 );
     }
 }

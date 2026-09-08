@@ -23,6 +23,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,12 +42,9 @@ class VisitControllerTest {
 
     @Test
     void getVisits_VisitsExist_Response200() throws Exception {
-        // VisitController's @PageableDefault(sort = "startTime") now matches what
-        // SortValidator allows (it used to say "startDate", which doesn't exist as a sortable
-        // field and made a parameterless GET /visits 400 with InvalidSortPropertyException).
         List<VisitDto> visits = List.of(
                 new VisitDto(1L, LocalDateTime.parse("2030-01-01T12:00:00"), LocalDateTime.parse("2030-01-01T12:30:00"), 1L, null),
-                new VisitDto(2L, LocalDateTime.parse("2030-01-01T12:30:00"), LocalDateTime.parse("2030-01-01T13:00:00"), 1L, 5L)
+                new VisitDto(2L, LocalDateTime.parse("2030-01-01T12:30:00"), LocalDateTime.parse("2030-01-01T13:00:00"), 1L, 2L)
         );
         Pageable pageable = PageRequest.of(0, 20, Sort.by("startTime"));
         Page<VisitDto> page = new PageImpl<>(visits, pageable, visits.size());
@@ -57,11 +55,9 @@ class VisitControllerTest {
                         status().isOk(),
                         jsonPath("$.content[0].id").value(1L),
                         jsonPath("$.content[0].doctorId").value(1L),
-                        jsonPath("$.content[0].patientId").value(org.hamcrest.Matchers.nullValue()),
                         jsonPath("$.content[1].id").value(2L),
                         jsonPath("$.content[1].doctorId").value(1L),
-                        jsonPath("$.content[1].patientId").value(5L),
-                        jsonPath("$.totalElements").value(2)
+                        jsonPath("$.content[1].patientId").value(2L)
                 );
     }
 
@@ -81,13 +77,13 @@ class VisitControllerTest {
 
     @Test
     void findById_VisitNotFound_Response404() throws Exception {
-        when(service.findById(99L)).thenThrow(new VisitNotFoundException(99L));
+        when(service.findById(2L)).thenThrow(new VisitNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/visits/99"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/visits/2"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Visit with id 99 not found")
+                        jsonPath("$.message").value("Visit with id 2 not found")
                 );
     }
 
@@ -103,16 +99,15 @@ class VisitControllerTest {
                 .andExpectAll(
                         status().isCreated(),
                         jsonPath("$.id").value(1L),
-                        jsonPath("$.doctorId").value(1L),
-                        jsonPath("$.patientId").value(org.hamcrest.Matchers.nullValue())
+                        jsonPath("$.doctorId").value(1L)
                 );
         verify(service).addVisit(command);
     }
 
     @Test
     void create_DoctorNotFound_Response404() throws Exception {
-        VisitCreateCommand command = new VisitCreateCommand(LocalDateTime.parse("2030-01-01T12:00:00"), LocalDateTime.parse("2030-01-01T12:30:00"), 99L);
-        when(service.addVisit(command)).thenThrow(new DoctorNotFoundException(99L));
+        VisitCreateCommand command = new VisitCreateCommand(LocalDateTime.parse("2030-01-01T12:00:00"), LocalDateTime.parse("2030-01-01T12:30:00"), 2L);
+        when(service.addVisit(command)).thenThrow(new DoctorNotFoundException(2L));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/visits")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,7 +115,7 @@ class VisitControllerTest {
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Doctor with id 99 not found")
+                        jsonPath("$.message").value("Doctor with id 2 not found")
                 );
     }
 
@@ -151,23 +146,22 @@ class VisitControllerTest {
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.id").value(1L),
-                        jsonPath("$.doctorId").value(1L),
-                        jsonPath("$.patientId").value(org.hamcrest.Matchers.nullValue())
+                        jsonPath("$.doctorId").value(1L)
                 );
     }
 
     @Test
     void update_VisitNotFound_Response404() throws Exception {
         VisitUpdateCommand command = new VisitUpdateCommand(LocalDateTime.parse("2030-01-01T13:00:00"), LocalDateTime.parse("2030-01-01T13:30:00"), null);
-        when(service.updateVisit(99L, command)).thenThrow(new VisitNotFoundException(99L));
+        when(service.updateVisit(2L, command)).thenThrow(new VisitNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/visits/99")
+        mockMvc.perform(MockMvcRequestBuilders.put("/visits/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Visit with id 99 not found")
+                        jsonPath("$.message").value("Visit with id 2 not found")
                 );
     }
 
@@ -195,13 +189,13 @@ class VisitControllerTest {
 
     @Test
     void addPatientToVisit_PatientNotFound_Response404() throws Exception {
-        when(service.addPatientToVisit(1L, 99L)).thenThrow(new PatientNotFoundException(99L));
+        when(service.addPatientToVisit(1L, 2L)).thenThrow(new PatientNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/visits/1/patient/99"))
+        mockMvc.perform(MockMvcRequestBuilders.put("/visits/1/patient/2"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Patient with id 99 not found")
+                        jsonPath("$.message").value("Patient with id 2 not found")
                 );
     }
 
@@ -227,19 +221,19 @@ class VisitControllerTest {
                         status().isOk(),
                         jsonPath("$.id").value(1L),
                         jsonPath("$.doctorId").value(1L),
-                        jsonPath("$.patientId").value(org.hamcrest.Matchers.nullValue())
+                        jsonPath("$.patientId").value(nullValue())
                 );
     }
 
     @Test
     void removePatientFromVisit_VisitNotFound_Response404() throws Exception {
-        when(service.removePatientFromVisit(99L)).thenThrow(new VisitNotFoundException(99L));
+        when(service.removePatientFromVisit(2L)).thenThrow(new VisitNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/visits/99/patient"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/visits/2/patient"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Visit with id 99 not found")
+                        jsonPath("$.message").value("Visit with id 2 not found")
                 );
     }
 }

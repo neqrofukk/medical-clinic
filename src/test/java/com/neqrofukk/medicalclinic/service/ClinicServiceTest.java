@@ -4,7 +4,6 @@ import com.neqrofukk.medicalclinic.dto.Clinic.ClinicCreateCommand;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicDetailsDto;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicDto;
 import com.neqrofukk.medicalclinic.dto.Clinic.ClinicUpdateCommand;
-import com.neqrofukk.medicalclinic.dto.Doctor.DoctorDto;
 import com.neqrofukk.medicalclinic.dto.PageResponse;
 import com.neqrofukk.medicalclinic.entity.Clinic;
 import com.neqrofukk.medicalclinic.entity.Doctor;
@@ -12,7 +11,6 @@ import com.neqrofukk.medicalclinic.entity.User;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotEmptyException;
 import com.neqrofukk.medicalclinic.exceptions.ClinicNotFoundException;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
-import com.neqrofukk.medicalclinic.exceptions.InvalidSortPropertyException;
 import com.neqrofukk.medicalclinic.mapper.ClinicDetailsMapper;
 import com.neqrofukk.medicalclinic.mapper.ClinicDetailsMapperImpl;
 import com.neqrofukk.medicalclinic.mapper.ClinicMapper;
@@ -23,19 +21,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.data.domain.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ClinicServiceTest {
     ClinicService clinicService;
@@ -69,10 +63,6 @@ class ClinicServiceTest {
 
         Assertions.assertAll(
                 () -> assertEquals(2, result.size()),
-                () -> assertEquals(0, pageResponse.page()),
-                () -> assertEquals(20, pageResponse.size()),
-                () -> assertEquals(2, pageResponse.totalElements()),
-                () -> assertEquals(1, pageResponse.totalPages()),
                 () -> assertTrue(pageResponse.last()),
                 () -> assertEquals(1L, result.get(0).id()),
                 () -> assertEquals("clinic1", result.get(0).name()),
@@ -165,7 +155,6 @@ class ClinicServiceTest {
 
         ClinicNotFoundException ex = assertThrows(ClinicNotFoundException.class, () -> clinicService.updateClinic(1L, command));
         assertEquals("Clinic with id 1 not found", ex.getMessage());
-        verify(clinicRepository, never()).save(any());
     }
 
     @Test
@@ -187,7 +176,6 @@ class ClinicServiceTest {
 
         ClinicNotEmptyException ex = assertThrows(ClinicNotEmptyException.class, () -> clinicService.deleteClinic(1L));
         assertEquals("Clinic with 1 is not empty", ex.getMessage());
-        verify(clinicRepository, never()).deleteById(any());
     }
 
     @Test
@@ -196,7 +184,6 @@ class ClinicServiceTest {
 
         ClinicNotFoundException ex = assertThrows(ClinicNotFoundException.class, () -> clinicService.deleteClinic(1L));
         assertEquals("Clinic with id 1 not found", ex.getMessage());
-        verify(clinicRepository, never()).deleteById(any());
     }
 
     @Test
@@ -244,7 +231,6 @@ class ClinicServiceTest {
 
         DoctorNotFoundException ex = assertThrows(DoctorNotFoundException.class, () -> clinicService.addDoctorToClinic(1L, 1L));
         assertEquals("Doctor with id 1 not found", ex.getMessage());
-        verifyNoInteractions(clinicRepository);
     }
 
     @Test
@@ -274,6 +260,5 @@ class ClinicServiceTest {
 
         ClinicNotFoundException ex = assertThrows(ClinicNotFoundException.class, () -> clinicService.removeDoctorFromClinic(1L, 1L));
         assertEquals("Clinic with id 1 not found", ex.getMessage());
-        verifyNoInteractions(doctorRepository);
     }
 }

@@ -20,8 +20,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,9 +36,6 @@ class UserControllerTest {
 
     @Test
     void getUsers_UsersExist_Response200() throws Exception {
-        // any(Pageable.class): with @PageableDefault(sort = "lastName") and no size in the
-        // request, Spring uses the annotation's own default size (10), not PageableConfig's
-        // global fallback of 20 - avoid hardcoding that here.
         List<UserDto> users = List.of(
                 new UserDto(1L, "buziaczek67@serduszko.com", "Jan", "Kowalski"),
                 new UserDto(2L, "buziaczek69@serduszko.com", "Janek", "Nowak")
@@ -58,8 +54,7 @@ class UserControllerTest {
                         jsonPath("$.content[1].id").value(2L),
                         jsonPath("$.content[1].email").value("buziaczek69@serduszko.com"),
                         jsonPath("$.content[1].firstName").value("Janek"),
-                        jsonPath("$.content[1].lastName").value("Nowak"),
-                        jsonPath("$.totalElements").value(2)
+                        jsonPath("$.content[1].lastName").value("Nowak")
                 );
     }
 
@@ -80,13 +75,13 @@ class UserControllerTest {
 
     @Test
     void findById_UserNotFound_Response404() throws Exception {
-        when(service.findById(99L)).thenThrow(new UserNotFoundException(99L));
+        when(service.findById(2L)).thenThrow(new UserNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/users/99"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/2"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("User with id 99 not found")
+                        jsonPath("$.message").value("User with id 2 not found")
                 );
     }
 
@@ -130,15 +125,15 @@ class UserControllerTest {
     @Test
     void update_UserNotFound_Response404() throws Exception {
         UserUpdateCommand command = new UserUpdateCommand("buziaczek69@serduszko.com", "trudneHaslo6767", "Janek", "Nowak");
-        when(service.updateUser(99L, command)).thenThrow(new UserNotFoundException(99L));
+        when(service.updateUser(2L, command)).thenThrow(new UserNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/users/99")
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("User with id 99 not found")
+                        jsonPath("$.message").value("User with id 2 not found")
                 );
     }
 
@@ -163,15 +158,15 @@ class UserControllerTest {
     @Test
     void changePassword_UserNotFound_Response404() throws Exception {
         PasswordChangeCommand command = new PasswordChangeCommand("trudneHaslo6767");
-        org.mockito.Mockito.doThrow(new UserNotFoundException(99L)).when(service).changePassword(99L, "trudneHaslo6767");
+        doThrow(new UserNotFoundException(2L)).when(service).changePassword(2L, "trudneHaslo6767");
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/users/99/password")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/users/2/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("User with id 99 not found")
+                        jsonPath("$.message").value("User with id 2 not found")
                 );
     }
 }

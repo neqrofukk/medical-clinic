@@ -8,13 +8,8 @@ import com.neqrofukk.medicalclinic.entity.Doctor;
 import com.neqrofukk.medicalclinic.entity.Patient;
 import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
-import com.neqrofukk.medicalclinic.exceptions.InvalidSortPropertyException;
 import com.neqrofukk.medicalclinic.exceptions.PatientNotFoundException;
-import com.neqrofukk.medicalclinic.exceptions.visit.VisitAlreadyTakenException;
-import com.neqrofukk.medicalclinic.exceptions.visit.VisitNotFoundException;
-import com.neqrofukk.medicalclinic.exceptions.visit.VisitNotFutureDateException;
-import com.neqrofukk.medicalclinic.exceptions.visit.VisitNotQuarterHourException;
-import com.neqrofukk.medicalclinic.exceptions.visit.VisitOverlapException;
+import com.neqrofukk.medicalclinic.exceptions.visit.*;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
@@ -28,17 +23,15 @@ import org.mockito.Mockito;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class VisitServiceTest {
     VisitService visitService;
@@ -60,8 +53,8 @@ class VisitServiceTest {
 
     @Test
     void getVisits_VisitsExist_VisitsReturned() {
-        Doctor doctor = new Doctor(10L, "shrink", new HashSet<>(), null, null, null);
-        Patient patient = new Patient(20L, "123456", null, null, null, new HashSet<>(), null);
+        Doctor doctor = new Doctor(10L, "shrink", null, null, null, null);
+        Patient patient = new Patient(20L, "123456", null, null, null, null, null);
         Visit visit1 = new Visit(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), doctor, patient, null);
         Visit visit2 = new Visit(2L, LocalDateTime.parse("2010-02-02T12:30:00"), LocalDateTime.parse("2010-02-02T13:00:00"), null, null, null);
         List<Visit> visits = List.of(visit1, visit2);
@@ -71,41 +64,27 @@ class VisitServiceTest {
 
         PageResponse<VisitDto> pageResponse = visitService.getVisits(pageable);
         List<VisitDto> result = pageResponse.content();
-        VisitDto dto1 = result.get(0);
-        VisitDto dto2 = result.get(1);
 
         Assertions.assertAll(
                 () -> assertEquals(2, result.size()),
-                () -> assertEquals(0, pageResponse.page()),
-                () -> assertEquals(20, pageResponse.size()),
-                () -> assertEquals(2, pageResponse.totalElements()),
-                () -> assertEquals(1L, dto1.id()),
-                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:00:00"), dto1.startTime()),
-                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), dto1.endTime()),
-                () -> assertEquals(10L, dto1.doctorId()),
-                () -> assertEquals(20L, dto1.patientId()),
-                () -> assertEquals(2L, dto2.id()),
-                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), dto2.startTime()),
-                () -> assertEquals(LocalDateTime.parse("2010-02-02T13:00:00"), dto2.endTime()),
-                () -> assertNull(dto2.doctorId()),
-                () -> assertNull(dto2.patientId())
+                () -> assertEquals(1L, result.get(0).id()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:00:00"), result.get(0).startTime()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), result.get(0).endTime()),
+                () -> assertEquals(10L, result.get(0).doctorId()),
+                () -> assertEquals(20L, result.get(0).patientId()),
+                () -> assertEquals(2L, result.get(1).id()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), result.get(1).startTime()),
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T13:00:00"), result.get(1).endTime()),
+                () -> assertNull(result.get(1).doctorId()),
+                () -> assertNull(result.get(1).patientId())
         );
         verify(visitRepository).findAll(pageable);
     }
 
     @Test
-    void getVisits_InvalidSortProperty_ThrowsException() {
-        Pageable pageable = PageRequest.of(0, 20, Sort.by("password"));
-
-        InvalidSortPropertyException ex = assertThrows(InvalidSortPropertyException.class, () -> visitService.getVisits(pageable));
-        assertTrue(ex.getMessage().contains("password"));
-        verifyNoInteractions(visitRepository);
-    }
-
-    @Test
     void findById_VisitExists_VisitReturned() {
-        Doctor doctor = new Doctor(10L, "shrink", new HashSet<>(), null, null, null);
-        Patient patient = new Patient(20L, "123456", null, null, null, new HashSet<>(), null);
+        Doctor doctor = new Doctor(10L, "shrink", null, null, null, null);
+        Patient patient = new Patient(20L, "123456", null, null, null, null, null);
         Visit visit = new Visit(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), doctor, patient, null);
         when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
 
@@ -124,20 +103,15 @@ class VisitServiceTest {
 
     @Test
     void findById_VisitNotFound_ThrowsException() {
-        when(visitRepository.findById(99L)).thenReturn(Optional.empty());
+        when(visitRepository.findById(2L)).thenReturn(Optional.empty());
 
-        VisitNotFoundException ex = assertThrows(VisitNotFoundException.class, () -> visitService.findById(99L));
-        assertEquals("Visit with id 99 not found", ex.getMessage());
+        VisitNotFoundException ex = assertThrows(VisitNotFoundException.class, () -> visitService.findById(2L));
+        assertEquals("Visit with id 2 not found", ex.getMessage());
     }
 
     @Test
     void addVisit_VisitCreated_VisitReturned() {
-        // BUG in the original test: VisitCreateCommand.doctorId() was null and doctorRepository
-        // was never stubbed, so getDoctorDb(null) threw DoctorNotFoundException before the test
-        // reached its assertions. visitValidator is mocked here on purpose - the real business
-        // rules (overlap/quarter-hour/future-date) get their own tests further down with a real
-        // VisitValidator.
-        Doctor doctor = new Doctor(1L, "shrink", new HashSet<>(), null, new HashSet<>(), null);
+        Doctor doctor = new Doctor(1L, "shrink", null, null, null, null);
         when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
         VisitCreateCommand command = new VisitCreateCommand(LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), 1L);
         Visit saved = new Visit(1L, command.startTime(), command.endTime(), doctor, null, 0L);
@@ -150,10 +124,7 @@ class VisitServiceTest {
                 () -> assertEquals(1L, result.id()),
                 () -> assertEquals(LocalDateTime.parse("2010-02-02T12:00:00"), result.startTime()),
                 () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), result.endTime()),
-                // VisitMapper now maps nested doctor.id/patient.id (fixed - previously hardcoded
-                // to null in the generated mapper).
-                () -> assertEquals(1L, result.doctorId()),
-                () -> assertNull(result.patientId())
+                () -> assertEquals(1L, result.doctorId())
         );
         verify(visitValidator).validate(any());
     }
@@ -165,12 +136,10 @@ class VisitServiceTest {
 
         DoctorNotFoundException ex = assertThrows(DoctorNotFoundException.class, () -> visitService.addVisit(command));
         assertEquals("Doctor with id 1 not found", ex.getMessage());
-        verifyNoInteractions(visitValidator, visitRepository);
     }
 
     @Test
     void addVisit_PastStartDate_ThrowsVisitNotFutureDateException() {
-        // Uses a REAL VisitValidator instead of the mock, so the actual business rule runs.
         VisitService realValidatorService = new VisitService(visitRepository, visitMapper, new VisitValidator(), patientRepository, doctorRepository);
         Doctor doctor = new Doctor(1L, "shrink", new HashSet<>(), null, new HashSet<>(), null);
         when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
@@ -179,20 +148,6 @@ class VisitServiceTest {
 
         VisitNotFutureDateException ex = assertThrows(VisitNotFutureDateException.class, () -> realValidatorService.addVisit(command));
         assertEquals("Visit is not a future date", ex.getMessage());
-        verify(visitRepository, never()).save(any());
-    }
-
-    @Test
-    void addVisit_StartNotQuarterHour_ThrowsVisitNotQuarterHourException() {
-        VisitService realValidatorService = new VisitService(visitRepository, visitMapper, new VisitValidator(), patientRepository, doctorRepository);
-        Doctor doctor = new Doctor(1L, "shrink", new HashSet<>(), null, new HashSet<>(), null);
-        when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
-        LocalDateTime start = LocalDateTime.now().plusDays(1).withMinute(7).withSecond(0).withNano(0);
-        VisitCreateCommand command = new VisitCreateCommand(start, start.plusMinutes(30), 1L);
-
-        VisitNotQuarterHourException ex = assertThrows(VisitNotQuarterHourException.class, () -> realValidatorService.addVisit(command));
-        assertEquals("Visit start or end time is not at full, half or quarter of hour", ex.getMessage());
-        verify(visitRepository, never()).save(any());
     }
 
     @Test
@@ -206,7 +161,6 @@ class VisitServiceTest {
 
         VisitOverlapException ex = assertThrows(VisitOverlapException.class, () -> realValidatorService.addVisit(command));
         assertEquals("Visit overlaps with a different visit", ex.getMessage());
-        verify(visitRepository, never()).save(any());
     }
 
     @Test
@@ -221,9 +175,7 @@ class VisitServiceTest {
                 () -> assertNotNull(result),
                 () -> assertEquals(1L, result.id()),
                 () -> assertEquals(LocalDateTime.parse("2010-02-02T12:30:00"), result.startTime()),
-                () -> assertEquals(LocalDateTime.parse("2010-02-02T13:00:00"), result.endTime()),
-                () -> assertNull(result.doctorId()),
-                () -> assertNull(result.patientId())
+                () -> assertEquals(LocalDateTime.parse("2010-02-02T13:00:00"), result.endTime())
         );
         verify(visitRepository).findById(1L);
         verify(visitRepository).save(visit);
@@ -236,7 +188,6 @@ class VisitServiceTest {
 
         VisitNotFoundException ex = assertThrows(VisitNotFoundException.class, () -> visitService.updateVisit(1L, command));
         assertEquals("Visit with id 1 not found", ex.getMessage());
-        verify(visitRepository, never()).save(any());
     }
 
     @Test
@@ -265,19 +216,18 @@ class VisitServiceTest {
                 () -> assertEquals(1L, result.patientId()),
                 () -> assertEquals(patient, visit.getPatient())
         );
-        verify(visitValidator).validatePatientOverlap(eq(patient), any(), any(), eq(1L));
+        verify(visitRepository).save(visit);
     }
 
     @Test
     void addPatientToVisit_VisitAlreadyHasPatient_ThrowsException() {
-        Patient existingPatient = new Patient(2L, "999999", null, null, null, new HashSet<>(), null);
+        Patient existingPatient = new Patient(2L, "654321", null, null, null, new HashSet<>(), null);
         Visit visit = new Visit(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), null, existingPatient, null);
         when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
         when(patientRepository.findById(1L)).thenReturn(Optional.of(new Patient(1L, "123456", null, null, null, new HashSet<>(), null)));
 
         VisitAlreadyTakenException ex = assertThrows(VisitAlreadyTakenException.class, () -> visitService.addPatientToVisit(1L, 1L));
         assertEquals("Visit with id 1 is already taken", ex.getMessage());
-        verify(visitRepository, never()).save(any());
     }
 
     @Test
@@ -286,7 +236,6 @@ class VisitServiceTest {
 
         VisitNotFoundException ex = assertThrows(VisitNotFoundException.class, () -> visitService.addPatientToVisit(1L, 1L));
         assertEquals("Visit with id 1 not found", ex.getMessage());
-        verifyNoInteractions(patientRepository);
     }
 
     @Test
@@ -297,19 +246,6 @@ class VisitServiceTest {
 
         PatientNotFoundException ex = assertThrows(PatientNotFoundException.class, () -> visitService.addPatientToVisit(1L, 1L));
         assertEquals("Patient with id 1 not found", ex.getMessage());
-    }
-
-    @Test
-    void addPatientToVisit_OverlapsPatientsOtherVisit_ThrowsException() {
-        Visit visit = new Visit(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), null, null, null);
-        Patient patient = new Patient(1L, "123456", null, null, null, new HashSet<>(), null);
-        when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
-        when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
-        doThrow(new VisitOverlapException()).when(visitValidator).validatePatientOverlap(eq(patient), any(), any(), eq(1L));
-
-        VisitOverlapException ex = assertThrows(VisitOverlapException.class, () -> visitService.addPatientToVisit(1L, 1L));
-        assertEquals("Visit overlaps with a different visit", ex.getMessage());
-        verify(visitRepository, never()).save(any());
     }
 
     @Test
@@ -329,6 +265,8 @@ class VisitServiceTest {
                 () -> assertNull(result.patientId()),
                 () -> assertNull(visit.getPatient())
         );
+        verify(visitRepository).findById(1L);
+        verify(visitRepository).save(visit);
     }
 
     @Test

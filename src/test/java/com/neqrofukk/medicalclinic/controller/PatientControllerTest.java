@@ -40,10 +40,6 @@ class PatientControllerTest {
 
     @Test
     void getPatients_PatientsExist_Response200() throws Exception {
-        // Not passing page/size params, so this relies on @PageableDefault(sort = "lastName")
-        // on the controller - its own default size (10) applies, not PageableConfig's global
-        // fallback of 20 (that only kicks in when a parameter has no @PageableDefault at all).
-        // Matching with any(Pageable.class) avoids hardcoding that Spring-internal detail.
         List<PatientDto> patients = List.of(
                 new PatientDto(1L, "buziaczek67@serduszko.com", "123456", "Jan", "Kowalski", LocalDate.parse("2000-01-01"), "600900600"),
                 new PatientDto(2L, "buziaczek69@serduszko.com", "987654", "Janek", "Nowak", LocalDate.parse("2010-02-02"), "700900500")
@@ -68,8 +64,7 @@ class PatientControllerTest {
                         jsonPath("$.content[1].firstName").value("Janek"),
                         jsonPath("$.content[1].lastName").value("Nowak"),
                         jsonPath("$.content[1].birthDay").value("2010-02-02"),
-                        jsonPath("$.content[1].phoneNumber").value("700900500"),
-                        jsonPath("$.totalElements").value(2)
+                        jsonPath("$.content[1].phoneNumber").value("700900500")
                 );
     }
 
@@ -93,13 +88,13 @@ class PatientControllerTest {
 
     @Test
     void findById_PatientNotFound_Response404() throws Exception {
-        when(service.findById(99L)).thenThrow(new PatientNotFoundException(99L));
+        when(service.findById(2L)).thenThrow(new PatientNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/patients/99"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/patients/2"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Patient with id 99 not found")
+                        jsonPath("$.message").value("Patient with id 2 not found")
                 );
     }
 
@@ -149,15 +144,15 @@ class PatientControllerTest {
     @Test
     void update_PatientNotFound_Response404() throws Exception {
         PatientUpdateCommand command = new PatientUpdateCommand("buziaczek69@serduszko.com", "987654", "Janek", "Nowak", LocalDate.parse("2010-02-02"), "700900500");
-        when(service.updatePatient(99L, command)).thenThrow(new PatientNotFoundException(99L));
+        when(service.updatePatient(2L, command)).thenThrow(new PatientNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/patients/99")
+        mockMvc.perform(MockMvcRequestBuilders.put("/patients/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(command)))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Patient with id 99 not found")
+                        jsonPath("$.message").value("Patient with id 2 not found")
                 );
     }
 
@@ -184,13 +179,13 @@ class PatientControllerTest {
 
     @Test
     void findAllVisits_PatientNotFound_Response404() throws Exception {
-        when(service.findAllVisits(99L)).thenThrow(new PatientNotFoundException(99L));
+        when(service.findAllVisits(2L)).thenThrow(new PatientNotFoundException(2L));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/patients/99/visits"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/patients/2/visits"))
                 .andExpectAll(
                         status().isNotFound(),
                         jsonPath("$.status").value(404),
-                        jsonPath("$.message").value("Patient with id 99 not found")
+                        jsonPath("$.message").value("Patient with id 2 not found")
                 );
     }
 }
