@@ -257,7 +257,7 @@ class DoctorServiceTest {
         Doctor doctor = new Doctor(1L, "shrink", new HashSet<>(), null, visits, null);
         when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
 
-        Set<VisitDto> result = doctorService.findAllVisits(1L);
+        Set<VisitDto> result = doctorService.findAllVisits(1L, false);
 
         Set<VisitDto> expected = Set.of(
                 new VisitDto(1L, LocalDateTime.parse("2010-02-02T12:00:00"), LocalDateTime.parse("2010-02-02T12:30:00"), null, null),
@@ -271,7 +271,7 @@ class DoctorServiceTest {
     void findAllVisits_DoctorNotFound_ThrowsException() {
         when(doctorRepository.findById(1L)).thenReturn(Optional.empty());
 
-        DoctorNotFoundException ex = assertThrows(DoctorNotFoundException.class, () -> doctorService.findAllVisits(1L));
+        DoctorNotFoundException ex = assertThrows(DoctorNotFoundException.class, () -> doctorService.findAllVisits(1L, false));
         assertEquals("Doctor with id 1 not found", ex.getMessage());
     }
 }

@@ -16,14 +16,17 @@ import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
 import com.neqrofukk.medicalclinic.repository.VisitRepository;
+import com.neqrofukk.medicalclinic.specifications.VisitSpecifications;
 import com.neqrofukk.medicalclinic.validators.SortValidator;
 import com.neqrofukk.medicalclinic.validators.VisitValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -38,10 +41,12 @@ public class VisitService {
     private final DoctorRepository doctorRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<VisitDto> getVisits(Pageable pageable) {
+    public PageResponse<VisitDto> getVisits(String specialty, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
         SortValidator.validate(pageable.getSort(), ALLOWED_SORT_FIELDS);
 
-        Page<Visit> page = visitRepository.findAll(pageable);
+        Specification<Visit> spec = VisitSpecifications.build(specialty, startTime, endTime);
+
+        Page<Visit> page = visitRepository.findAll(spec, pageable);
         return PageResponse.from(page.map(visitMapper::toVisitDto));
     }
 

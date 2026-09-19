@@ -9,7 +9,10 @@ import com.neqrofukk.medicalclinic.entity.Patient;
 import com.neqrofukk.medicalclinic.entity.Visit;
 import com.neqrofukk.medicalclinic.exceptions.DoctorNotFoundException;
 import com.neqrofukk.medicalclinic.exceptions.PatientNotFoundException;
-import com.neqrofukk.medicalclinic.exceptions.visit.*;
+import com.neqrofukk.medicalclinic.exceptions.visit.VisitAlreadyTakenException;
+import com.neqrofukk.medicalclinic.exceptions.visit.VisitNotFoundException;
+import com.neqrofukk.medicalclinic.exceptions.visit.VisitNotFutureDateException;
+import com.neqrofukk.medicalclinic.exceptions.visit.VisitOverlapException;
 import com.neqrofukk.medicalclinic.mapper.VisitMapper;
 import com.neqrofukk.medicalclinic.repository.DoctorRepository;
 import com.neqrofukk.medicalclinic.repository.PatientRepository;
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -30,6 +34,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,9 +65,9 @@ class VisitServiceTest {
         List<Visit> visits = List.of(visit1, visit2);
         Pageable pageable = PageRequest.of(0, 20, Sort.by("startTime"));
         Page<Visit> page = new PageImpl<>(visits, pageable, visits.size());
-        when(visitRepository.findAll(pageable)).thenReturn(page);
+        when(visitRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
-        PageResponse<VisitDto> pageResponse = visitService.getVisits(pageable);
+        PageResponse<VisitDto> pageResponse = visitService.getVisits(null, null, null, pageable);
         List<VisitDto> result = pageResponse.content();
 
         Assertions.assertAll(
@@ -78,7 +83,7 @@ class VisitServiceTest {
                 () -> assertNull(result.get(1).doctorId()),
                 () -> assertNull(result.get(1).patientId())
         );
-        verify(visitRepository).findAll(pageable);
+        verify(visitRepository).findAll(any(Specification.class), eq(pageable));
     }
 
     @Test

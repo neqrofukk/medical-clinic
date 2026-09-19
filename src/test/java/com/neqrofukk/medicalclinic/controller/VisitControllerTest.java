@@ -25,6 +25,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,7 +49,7 @@ class VisitControllerTest {
         );
         Pageable pageable = PageRequest.of(0, 20, Sort.by("startTime"));
         Page<VisitDto> page = new PageImpl<>(visits, pageable, visits.size());
-        when(service.getVisits(any(Pageable.class))).thenReturn(PageResponse.from(page));
+        when(service.getVisits(isNull(), isNull(), isNull(), any(Pageable.class))).thenReturn(PageResponse.from(page));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/visits"))
                 .andExpectAll(

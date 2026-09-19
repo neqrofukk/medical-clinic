@@ -9,9 +9,13 @@ databaseChangeLog:
               - column:
                   name: clinic_id
                   type: BIGINT
+                  constraints:
+                    nullable: false
               - column:
                   name: doctor_id
                   type: BIGINT
+                  constraints:
+                    nullable: false
   - changeSet:
       id: 005-add-clinic-doctor-fk
       author: neqro

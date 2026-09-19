@@ -233,7 +233,7 @@ class DoctorControllerTest {
     @Test
     void findAllVisits_VisitsExist_Response200() throws Exception {
         Set<VisitDto> visits = Set.of(new VisitDto(1L, LocalDateTime.parse("2030-01-01T12:00:00"), LocalDateTime.parse("2030-01-01T12:30:00"), 1L, null));
-        when(service.findAllVisits(1L)).thenReturn(visits);
+        when(service.findAllVisits(1L, false)).thenReturn(visits);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/doctors/1/visits"))
                 .andExpectAll(
@@ -245,7 +245,7 @@ class DoctorControllerTest {
 
     @Test
     void findAllVisits_DoctorNotFound_Response404() throws Exception {
-        when(service.findAllVisits(2L)).thenThrow(new DoctorNotFoundException(2L));
+        when(service.findAllVisits(2L, false)).thenThrow(new DoctorNotFoundException(2L));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/doctors/2/visits"))
                 .andExpectAll(
