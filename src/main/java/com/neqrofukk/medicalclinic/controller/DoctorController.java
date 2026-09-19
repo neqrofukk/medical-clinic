@@ -114,7 +114,7 @@ public class DoctorController {
     })
     @GetMapping("{id}/visits")
     @ResponseStatus(HttpStatus.OK)
-    public Set<VisitDto> findAllVisits(@PathVariable Long id) {
-        return doctorService.findAllVisits(id);
+    public Set<VisitDto> findAllVisits(@PathVariable Long id, @RequestParam(defaultValue = "false") Boolean available) {
+        return doctorService.findAllVisits(id, available);
     }
 }

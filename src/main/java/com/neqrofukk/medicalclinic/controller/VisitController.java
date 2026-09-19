@@ -15,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @Tag(name = "visit", description = "Operations for managing visits")
 @RequestMapping("/visits")
 @RestController
@@ -26,8 +28,12 @@ public class VisitController {
     @ApiResponse(responseCode = "200", description = "Returned visits")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<VisitDto> getVisits(@PageableDefault(sort = "startDate") Pageable pageable) {
-        return visitService.getVisits(pageable);
+    public PageResponse<VisitDto> getVisits(
+            @RequestParam(required = false) String specialty,
+            @RequestParam(required = false) LocalDateTime startTime,
+            @RequestParam(required = false) LocalDateTime endTime,
+            @PageableDefault(sort = "startTime") Pageable pageable) {
+        return visitService.getVisits(specialty, startTime, endTime, pageable);
     }
 
     @Operation(summary = "Get visit by id")
@@ -81,7 +87,8 @@ public class VisitController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Patient added to visit successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
-            @ApiResponse(responseCode = "404", description = "Visit or patient not found")
+            @ApiResponse(responseCode = "404", description = "Visit or patient not found"),
+            @ApiResponse(responseCode = "409", description = "Visit already taken")
     })
     @PutMapping("{visitId}/patient/{patientId}")
     @ResponseStatus(HttpStatus.OK)
